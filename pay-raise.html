@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Raise Calculation They v.s Us</title>
+    <style>
+        :root {
+            --color-they: #e74c3c; /* Red */
+            --color-us: #2ecc71;   /* Green */
+            --color-primary: #3498db; /* Blue */
+            --color-bg: #ecf0f1;
+            --color-text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--color-primary);
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--color-bg);
+            padding-bottom: 15px;
+        }
+
+        /* Input and Button Styling */
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .input-field-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            flex-grow: 1;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            border-color: var(--color-primary);
+            outline: none;
+        }
+
+        button {
+            padding: 12px 25px;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Reference Table Styling */
+        .reference-table-container {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .reference-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        .reference-table th, .reference-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .reference-table th {
+            background-color: var(--color-primary);
+            color: white;
+            font-weight: normal;
+        }
+        
+        .reference-table tr:nth-child(even) {
+            background-color: #f5f5f5;
+        }
+
+        /* Results Area Styling */
+        #results {
+            margin-top: 40px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .comparison-section {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            flex-wrap: wrap; /* Allows wrapping on smaller screens */
+        }
+
+        .offer-card {
+            flex: 1;
+            min-width: 300px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .offer-card.they {
+            background-color: #fbecec;
+            border-left: 5px solid var(--color-they);
+        }
+
+        .offer-card.us {
+            background-color: #ebfcf2;
+            border-left: 5px solid var(--color-us);
+        }
+
+        .offer-card h2 {
+            margin-top: 0;
+            font-size: 1.5em;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .offer-card.they h2 { color: var(--color-they); }
+        .offer-card.us h2 { color: var(--color-us); }
+
+        .offer-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .offer-table th, .offer-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+        
+        .rate-per-hour {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Chart Styling */
+        .chart-container {
+            padding-top: 20px;
+        }
+
+        .chart-bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .chart-label {
+            width: 150px;
+            font-size: 1.1em;
+        }
+
+        .chart-bar-wrapper {
+            flex-grow: 1;
+            height: 30px;
+            background-color: #eee;
+            border-radius: 4px;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .chart-bar {
+            height: 100%;
+            transition: width 1s ease-out;
+            border-radius: 4px;
+            min-width: 5px; /* Ensure tiny bars are visible */
+        }
+
+        .chart-bar.they { background-color: var(--color-they); }
+        .chart-bar.us { background-color: var(--color-us); }
+        
+        .chart-value {
+            font-size: 1.2em;
+        }
+        
+        /* Media Queries for Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .comparison-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .offer-card {
+                min-width: unset;
+            }
+            
+            .input-field-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .chart-label {
+                width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💰 Pay Raise Calculation They v.s Us</h1>
+        
+        <div class="input-area">
+            <div class="input-field-group">
+                <label for="currentPay">Your current pay per hour:</label>
+                <input type="number" id="currentPay" placeholder="Example: 80.29" step="0.01">
+            </div>
+            <button onclick="calculateRaise()">Generate Results</button>
+        </div>
+
+        <div class="reference-table-container">
+            <h2>Reference Steps and Pay Rate Per Hour</h2>
+            <table class="reference-table">
+                <thead>
+                    <tr>
+                        <th>Step</th>
+                        <th>Rate ($/hr)</th>
+                        <th>Step</th>
+                        <th>Rate ($/hr)</th>
+                        <th>Step</th>
+                        <th>Rate ($/hr)</th>
+                        <th>Step</th>
+                        <th>Rate ($/hr)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>0</td><td>70.21</td>
+                        <td>5</td><td>79.84</td>
+                        <td>10</td><td>88.08</td>
+                        <td>15</td><td>97.24</td>
+                    </tr>
+                    <tr>
+                        <td>1</td><td>73.72</td>
+                        <td>6</td><td>81.41</td>
+                        <td>11</td><td>89.89</td>
+                        <td>16</td><td>99.20</td>
+                    </tr>
+                    <tr>
+                        <td>2</td><td>75.17</td>
+                        <td>7</td><td>83.03</td>
+                        <td>12</td><td>91.65</td>
+                        <td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td><td>76.70</td>
+                        <td>8</td><td>84.69</td>
+                        <td>13</td><td>93.48</td>
+                        <td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td><td>78.23</td>
+                        <td>9</td><td>86.38</td>
+                        <td>14</td><td>95.37</td>
+                        <td></td><td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="results">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p>Your Starting Pay: <strong style="font-size: 1.5em; color: var(--color-primary);">$<span id="startingPayDisplay">0.00</span>/hr</strong></p>
+                <p class="us-pay-note" style="color: var(--color-us); font-style: italic; display: none;">
+                    *For the "Us" scenario, your starting rate is internally adjusted to <strong style="font-size: 1.1em;">$<span id="usStartingPayDisplay">0.00</span>/hr</strong> for calculation.
+                </p>
+            </div>
+            
+            <div class="comparison-section">
+                <div class="offer-card they">
+                    <h2>They Offer 🟥</h2>
+                    <h3>Fake total 27% raise</h3>
+                    <p style="font-weight: bold; margin-bottom: 10px;">Actual Yearly Raises: 3.2%, 2.5%, 2.5%, 2.5%, 3%</p>
+                    <table class="offer-table">
+                        <thead>
+                            <tr><th>Year</th><th>Raise %</th><th>New Pay ($/hr)</th></tr>
+                        </thead>
+                        <tbody id="they-results-body"></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2">Final Pay (Year 5)</td>
+                                <td class="rate-per-hour" id="they-final-rate">$0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="offer-card us">
+                    <h2>Us Offer 🟩</h2>
+                    <h3>Matching San Francisco Counterpart</h3>
+                    <p style="font-weight: bold; margin-bottom: 10px;">Actual Yearly Raises: 7%, 7%, 6%, 6%</p>
+                    <table class="offer-table">
+                        <thead>
+                            <tr><th>Year</th><th>Raise %</th><th>New Pay ($/hr)</th></tr>
+                        </thead>
+                        <tbody id="us-results-body"></tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="2">Final Pay (Year 4)</td>
+                                <td class="rate-per-hour" id="us-final-rate">$0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>📊 Final Pay Rate Comparison</h2>
+                
+                <div class="chart-bar-container">
+                    <div class="chart-label">They (Year 5)</div>
+                    <div class="chart-bar-wrapper">
+                        <div id="they-chart-bar" class="chart-bar they" style="width: 0%;"></div>
+                    </div>
+                    <div class="chart-value" id="they-chart-value">$0.00</div>
+                </div>
+
+                <div class="chart-bar-container">
+                    <div class="chart-label">Us (Year 4)</div>
+                    <div class="chart-bar-wrapper">
+                        <div id="us-chart-bar" class="chart-bar us" style="width: 0%;"></div>
+                    </div>
+                    <div class="chart-value" id="us-chart-value">$0.00</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; padding: 20px; border: 1px dashed #ccc; border-radius: 8px;">
+                <h2>⭐ Comparison Summary</h2>
+                <p>The **"Us"** offer final pay is **<span id="difference-amount" style="font-weight: bold;">$0.00</span>/hr** (<span id="difference-percent" style="font-weight: bold;">0%</span>) <span id="comparison-word" style="font-weight: bold;">higher</span> than the **"They"** offer final pay.</p>
+                <p><span id="year-difference" style="font-weight: bold;">The "Us" offer achieves its final rate in 4 years, while the "They" offer takes 5 years.</span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const THEY_RAISES = [0.032, 0.025, 0.025, 0.025, 0.03];
+        const US_RAISES = [0.07, 0.07, 0.06, 0.06];
+        const US_STARTING_RATES = [
+            { max: 73.72, rate: 84.79 },
+            { max: 75.17, rate: 92.25 },
+            { max: 76.70, rate: 95.55 },
+            { max: 78.23, rate: 98.98 },
+            { max: 79.84, rate: 102.55 },
+            { max: 84.69, rate: 104.59 },
+            { max: 86.38, rate: 106.68 },
+            { max: 89.89, rate: 108.83 },
+            { min: 89.89, rate: 110.97 } // The ">=" case
+        ];
+
+        function formatCurrency(number) {
+            return parseFloat(number).toFixed(2);
+        }
+
+        function getUsStartingRate(currentPay) {
+            if (currentPay >= 89.89) {
+                return US_STARTING_RATES.find(r => r.min === 89.89).rate;
+            }
+            const match = US_STARTING_RATES.find(r => currentPay < r.max);
+            return match ? match.rate : currentPay; // Fallback to currentPay if no match (shouldn't happen with given logic)
+        }
+
+        function calculateResults(startingPay, raises, resultsBodyId) {
+            let currentRate = startingPay;
+            let html = '';
+            
+            raises.forEach((raise, index) => {
+                const year = index + 1;
+                const newRate = currentRate * (1 + raise);
+                html += `
+                    <tr>
+                        <td>Year ${year}</td>
+                        <td>${(raise * 100).toFixed(1)}%</td>
+                        <td>$${formatCurrency(newRate)}</td>
+                    </tr>
+                `;
+                currentRate = newRate;
+            });
+            
+            document.getElementById(resultsBodyId).innerHTML = html;
+            return currentRate;
+        }
+
+        function calculateRaise() {
+            const currentPayInput = document.getElementById('currentPay').value;
+            const currentPay = parseFloat(currentPayInput);
+
+            if (isNaN(currentPay) || currentPay <= 0) {
+                alert('Please enter a valid positive number for your current pay.');
+                return;
+            }
+
+            // --- Starting Pay Display ---
+            document.getElementById('startingPayDisplay').textContent = formatCurrency(currentPay);
+            document.getElementById('results').style.opacity = 1;
+
+            // --- Calculate THEY Offer ---
+            const theyFinalRate = calculateResults(currentPay, THEY_RAISES, 'they-results-body');
+            document.getElementById('they-final-rate').textContent = `$${formatCurrency(theyFinalRate)}`;
+            
+            // --- Calculate US Offer ---
+            const usStartingRate = getUsStartingRate(currentPay);
+            document.getElementById('usStartingPayDisplay').textContent = formatCurrency(usStartingRate);
+            document.querySelector('.us-pay-note').style.display = (usStartingRate !== currentPay) ? 'block' : 'none';
+
+            const usFinalRate = calculateResults(usStartingRate, US_RAISES, 'us-results-body');
+            document.getElementById('us-final-rate').textContent = `$${formatCurrency(usFinalRate)}`;
+
+            // --- Charting and Summary ---
+            const maxRate = Math.max(theyFinalRate, usFinalRate);
+            const theyPercent = (theyFinalRate / maxRate) * 100;
+            const usPercent = (usFinalRate / maxRate) * 100;
+
+            // Update Chart Bars
+            document.getElementById('they-chart-bar').style.width = `${theyPercent}%`;
+            document.getElementById('us-chart-bar').style.width = `${usPercent}%`;
+            
+            // Update Chart Values
+            document.getElementById('they-chart-value').textContent = `$${formatCurrency(theyFinalRate)}`;
+            document.getElementById('us-chart-value').textContent = `$${formatCurrency(usFinalRate)}`;
+            
+            // Update Comparison Summary
+            const difference = Math.abs(usFinalRate - theyFinalRate);
+            const differencePercentage = ((difference / theyFinalRate) * 100).toFixed(2);
+            
+            document.getElementById('difference-amount').textContent = `$${formatCurrency(difference)}`;
+            document.getElementById('difference-percent').textContent = `${differencePercentage}%`;
+            
+            let comparisonWord = '';
+            if (usFinalRate > theyFinalRate) {
+                comparisonWord = 'higher';
+            } else if (usFinalRate < theyFinalRate) {
+                comparisonWord = 'lower';
+            } else {
+                comparisonWord = 'the same';
+                document.getElementById('difference-percent').textContent = '0%';
+            }
+            
+            document.getElementById('comparison-word').textContent = comparisonWord;
+        }
+    </script>
+</body>
+</html>
