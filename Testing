@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Burden to Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 600px;
+            max-height: 80vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 500px;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'union-red': '#FF5733',
+                        'union-blue': '#3498DB',
+                        'union-yellow': '#FFC300',
+                        'union-dark': '#2c3e50',
+                        'union-light': '#f4f6f6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-union-light font-sans text-union-dark">
+
+    <main class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <section class="text-center p-8 bg-white rounded-lg shadow-xl mb-10 border-t-8 border-union-red">
+            <h1 class="text-4xl md:text-7xl font-extrabold text-union-red uppercase" style="letter-spacing: -1px;">
+                "A BURDEN TO MANAGEMENT"
+            </h1>
+            <p class="text-lg md:text-2xl font-light text-union-dark mt-4 italic">
+                — UC's Executive Director of Labor Relations, Daniel Menezes, October 1, 2025
+            </p>
+            <p class="text-base md:text-lg max-w-3xl mx-auto mt-6">
+                He told nurses that the healthcare caps protecting UC employees from skyrocketing costs are a "burden" because they limit how much the university can charge employees.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-union-blue mb-4">
+                        Healthcare isn't a burden—it’s a <span class="underline decoration-union-yellow decoration-4">Responsibility</span>.
+                    </h2>
+                    <p class="text-lg mb-4">
+                        While UC executives make $400–$1,000 an hour, the nurses and staff who keep patients alive are being told that affordable healthcare “ties management’s hands.”
+                    </p>
+                    <p class="text-lg font-semibold">
+                        This is why UC nurses are fighting for strong healthcare protections.
+                    </p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 md:p-8 border-t-4 border-union-blue">
+                    <h3 class="text-2xl font-bold text-union-dark mb-4">The *Real* Burdens We Carry</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center p-3 bg-union-light rounded-md">
+                            <span class="text-2xl mr-3">🩺</span>
+                            <span class="text-lg">The physical and emotional weight of short-staffing.</span>
+                        </li>
+                        <li class="flex items-center p-3 bg-union-light rounded-md">
+                            <span class="text-2xl mr-3">🩹</span>
+                            <span class="text-lg">Excessive workloads and working double shifts.</span>
+                        </li>
+                        <li class="flex items-center p-3 bg-union-light rounded-md">
+                            <span class="text-2xl mr-3">💔</span>
+                            <span class="text-lg">The lasting trauma of the pandemic.</span>
+                        </li>
+                        <li class="flex items-center p-3 bg-union-light rounded-md">
+                            <span class="text-2xl mr-3">⏳</span>
+                            <span class="text-lg">Making life-or-death decisions every single shift.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6 md:p-8 mb-10">
+            <h2 class="text-3xl font-extrabold text-union-dark text-center mb-2">Let's Talk About *Real* Burdens: Executive Pay</h2>
+            <p class="text-lg text-center text-slate-600 max-w-4xl mx-auto mb-6">
+                While management complains about the "burden" of affordable healthcare, here is the calculated hourly pay for UC's top 16 executives, based on their annual salaries.
+            </p>
+            <div class="chart-container">
+                <canvas id="execPayChart"></canvas>
+            </div>
+            <p class="text-center text-sm text-slate-500 mt-4">
+                Figure 1: Comparison of UC Executive hourly pay, sorted highest to lowest.
+            </p>
+        </section>
+
+        <section class="mb-10">
+            <h2 class="text-3xl font-extrabold text-union-dark text-center mb-6">A Closer Look: The Top Earners</h2>
+            <p class="text-lg text-center text-slate-600 max-w-4xl mx-auto mb-6">
+                Four executives alone make between $646 and $1,058 every single hour.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6 text-center border-t-4 border-union-red">
+                    <h3 class="text-xl font-semibold text-union-dark">Johnese Spisso</h3>
+                    <p class="text-base text-slate-500 mb-2">UCLA CEO</p>
+                    <p class="text-6xl font-extrabold text-union-red">$1,058</p>
+                    <p class="text-lg text-slate-600">per hour</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center border-t-4 border-union-red">
+                    <h3 class="text-xl font-semibold text-union-dark">Suresh Gunasekaran</h3>
+                    <p class="text-base text-slate-500 mb-2">UCSF CEO</p>
+                    <p class="text-6xl font-extrabold text-union-red">$997</p>
+                    <p class="text-lg text-slate-600">per hour</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center border-t-4 border-union-red">
+                    <h3 class="text-xl font-semibold text-union-dark">Patricia Maysent</h3>
+                    <p class="text-base text-slate-500 mb-2">UCSD CEO</p>
+                    <p class="text-6xl font-extrabold text-union-red">$723</p>
+                    <p class="text-lg text-slate-600">per hour</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 text-center border-t-4 border-union-red">
+                    <h3 class="text-xl font-semibold text-union-dark">James B. Milliken</h3>
+                    <p class="text-base text-slate-500 mb-2">UC President</p>
+                    <p class="text-6xl font-extrabold text-union-red">$646</p>
+                    <p class="text-lg text-slate-600">per hour</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6 md:p-8 mb-10">
+            <h2 class="text-3xl font-extrabold text-union-dark text-center mb-8">The Disconnect: A Tale of Two UCs</h2>
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+                
+                <div class="w-full md:w-2/5 p-6 bg-red-50 border-2 border-union-red rounded-lg text-center shadow-inner">
+                    <h3 class="text-2xl font-bold text-union-red mb-3">UC MANAGEMENT</h3>
+                    <p class="text-lg font-semibold text-union-dark">Hourly Pay: $388 - $1,058</p>
+                    <p class="text-lg font-light text-slate-600 mt-2">Annual: $810k - $2.2M</p>
+                    <div class="my-4 h-px bg-union-red w-1/3 mx-auto"></div>
+                    <p class="text-xl font-bold text-union-red">Their Claim: <br />"Healthcare is a 'burden'"</p>
+                </div>
+
+                <div class="text-6xl font-extrabold text-union-blue transform rotate-90 md:rotate-0">
+                    &rarr;
+                </div>
+                
+                <div class="w-full md:w-2/5 p-6 bg-blue-50 border-2 border-union-blue rounded-lg text-center shadow-inner">
+                    <h3 class="text-2xl font-bold text-union-blue mb-3">NURSES & STAFF</h3>
+                    <p class="text-lg font-semibold text-union-dark">Action: Keep Patients Alive</p>
+                    <p class="text-lg font-light text-slate-600 mt-2">Daily: Face real burdens</p>
+                    <div class="my-4 h-px bg-union-blue w-1/3 mx-auto"></div>
+                    <p class="text-xl font-bold text-union-blue">Our Reality: <br />"Healthcare is a necessity"</p>
+                </div>
+
+            </div>
+        </section>
+        
+        <section class="bg-union-blue text-white rounded-lg shadow-xl p-6 md:p-8 mb-10">
+            <h2 class="text-3xl font-extrabold text-union-yellow text-center mb-6">Union Strategy Assistant ✨</h2>
+            <p class="text-lg text-center mb-4 max-w-3xl mx-auto">
+                Turn your outrage into action! Enter a quick goal (e.g., "Draft a social media post about executive pay") and let our assistant craft a high-impact, professional, and powerful communication plan using our union's tone.
+            </p>
+            
+            <div class="mb-4">
+                <label for="strategyInput" class="block text-sm font-medium mb-2">Your Strategy Goal:</label>
+                <textarea id="strategyInput" rows="3" class="w-full p-3 rounded-lg text-union-dark border-none shadow-inner" placeholder="E.g., Talking points for next bargaining session about the 'burden' comment..."></textarea>
+            </div>
+            
+            <div class="text-center mb-6">
+                <button id="generateStrategyBtn" onclick="generateActionPlan()" class="bg-union-red text-white px-6 py-3 rounded-lg font-bold uppercase hover:bg-red-600 transition duration-300 shadow-lg">
+                    Generate Strategy ✨
+                </button>
+            </div>
+
+            <div id="loadingIndicator" class="hidden text-center text-union-yellow font-semibold p-4">
+                Generating high-impact strategy... Please wait.
+            </div>
+
+            <div id="strategyOutput" class="bg-white text-union-dark p-6 rounded-lg shadow-2xl min-h-[150px] whitespace-pre-wrap">
+                <p class="text-slate-500 italic">Generated union strategy will appear here.</p>
+            </div>
+        </section>
+
+        <section class="text-center p-10 bg-union-dark text-white rounded-lg shadow-xl mt-10">
+            <h2 class="text-4xl md:text-5xl font-extrabold uppercase">
+                THIS IS WHY WE FIGHT.
+            </h2>
+            <p class="text-xl md:text-2xl font-light max-w-3xl mx-auto mt-6">
+                Your health—and your family’s—shouldn’t depend on what UC executives think they’re "burdened" by.
+            </p>
+        </section>
+
+    </main>
+
+    <script>
+        const API_KEY = "";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`;
+        const SYSTEM_PROMPT = "You are a seasoned, sharp, and highly effective union communications strategist for healthcare workers. Your role is to convert a user's raw sentiment or goal into a structured, persuasive, and actionable communication draft or plan. Adopt the union's core tone: strong, highly professional, data-backed (focus on executive pay vs. healthcare costs), and infused with pointed, intellectual sarcasm regarding UC management's 'burden' comment. Structure the response clearly with headings based on the user's request (e.g., 'Action Plan Outline', 'Draft Press Release', 'Key Talking Points').";
+        
+        async function callGeminiApiWithBackoff(payload, maxRetries = 5) {
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        return await response.json();
+                    } else if (response.status === 429 && attempt < maxRetries - 1) {
+                        const delay = Math.pow(2, attempt) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    } else {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+                } catch (error) {
+                    if (attempt === maxRetries - 1) {
+                        throw new Error(`Gemini API request failed after ${maxRetries} attempts: ${error.message}`);
+                    }
+                }
+            }
+        }
+
+        async function generateActionPlan() {
+            const inputElement = document.getElementById('strategyInput');
+            const outputElement = document.getElementById('strategyOutput');
+            const loadingElement = document.getElementById('loadingIndicator');
+            const goal = inputElement.value.trim();
+
+            if (!goal) {
+                outputElement.innerHTML = '<p class="text-union-red font-semibold">Please enter a strategy goal or sentiment to generate a plan.</p>';
+                return;
+            }
+
+            outputElement.innerHTML = '';
+            loadingElement.classList.remove('hidden');
+
+            const payload = {
+                contents: [{ parts: [{ text: goal }] }],
+                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] }
+            };
+
+            try {
+                const result = await callGeminiApiWithBackoff(payload);
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    outputElement.innerHTML = text;
+                } else {
+                    outputElement.innerHTML = '<p class="text-union-red font-semibold">Error: Could not generate strategy. Check API status.</p>';
+                }
+            } catch (error) {
+                outputElement.innerHTML = `<p class="text-union-red font-semibold">A critical error occurred: ${error.message}</p>`;
+            } finally {
+                loadingElement.classList.add('hidden');
+            }
+        }
+        
+        window.onload = function () {
+            
+            function wrapLabel(label, maxWidth) {
+                const words = label.split(' ');
+                let lines = [];
+                let currentLine = '';
+                for (const word of words) {
+                    if ((currentLine + word).length > maxWidth && currentLine.length > 0) {
+                        lines.push(currentLine.trim());
+                        currentLine = word + ' ';
+                    } else {
+                        currentLine += word + ' ';
+                    }
+                }
+                lines.push(currentLine.trim());
+                return lines;
+            }
+
+            const execData = [
+                { name: 'UCLA CEO Johnese Spisso', pay: 1058 },
+                { name: 'UCSF CEO Suresh Gunasekaran', pay: 997 },
+                { name: 'UCSD CEO Patricia Maysent', pay: 723 },
+                { name: 'UC President James B. Milliken', pay: 646 },
+                { name: 'UCD CEO (Interim) Michael Condrin', pay: 622 },
+                { name: 'UCI CEO Chad Lefteris', pay: 618 },
+                { name: 'UCSF Chancellor Sam Hawgood', pay: 588 },
+                { name: 'UCSD Chancellor Pradeep Kholsa', pay: 588 },
+                { name: 'UCLA Chancellor Julio Frenk', pay: 484 },
+                { name: 'UCB Chancellor Richard Lyon', pay: 468 },
+                { name: 'UCD Chancellor Gary May', pay: 442 },
+                { name: 'UCI Chancellor Howard Gillman', pay: 442 },
+                { name: 'UCSB Chancellor Dennis Assanis', pay: 422 },
+                { name: 'UCR Chancellor S.Jack Hu', pay: 395 },
+                { name: 'UCSC Chancellor Cynthia Larvie', pay: 393 },
+                { name: 'UCM Chancellor Juan Munoz', pay: 388 }
+            ];
+
+            const chartLabels = execData.map(e => wrapLabel(e.name, 18));
+            const chartData = execData.map(e => e.pay);
+
+            const colorRed = '#FF5733';
+            const colorBG = 'rgba(255, 87, 51, 0.2)';
+            const colorBorder = 'rgba(255, 87, 51, 1)';
+            
+            const ctx = document.getElementById('execPayChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        label: 'Hourly Pay ($)',
+                        data: chartData,
+                        backgroundColor: colorBG,
+                        borderColor: colorBorder,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    responsive: true,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Calculated Hourly Pay (USD)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value;
+                                }
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                autoSkip: false,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#333',
+                            titleFont: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 14
+                            },
+                            callbacks: {
+                                title: function(tooltipItems) {
+                                    const item = tooltipItems[0];
+                                    let label = item.chart.data.labels[item.dataIndex];
+                                    if (Array.isArray(label)) {
+                                      return label.join(' ');
+                                    } else {
+                                      return label;
+                                    }
+                                },
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.x);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
