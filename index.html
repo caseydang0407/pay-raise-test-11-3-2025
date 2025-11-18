@@ -232,7 +232,8 @@
             <div class="input-group">
                 <label for="step">Step (2025 Current)</label>
                 <select id="step">
-                    </select>
+                    <!-- Options populated by JavaScript -->
+                </select>
             </div>
 
             <button onclick="generateWages()">Generate Comparison</button>
@@ -243,7 +244,8 @@
         </div>
 
         <div id="results-area" style="display:none;">
-            </div>
+            <!-- Results will be displayed here -->
+        </div>
         
         <div class="pay-scale">
             <h2>2025 Current Pay Scale</h2>
@@ -257,7 +259,8 @@
                         </tr>
                     </thead>
                     <tbody id="pay-scale-body">
-                        </tbody>
+                        <!-- Pay scale data inserted by JavaScript -->
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -265,6 +268,7 @@
     </div>
 
     <script>
+        // Wage data from the user's table (2025 Base Rates)
         const payScale = {
             CN2: { 0: 70.21, 1: 73.72, 2: 75.17, 3: 76.70, 4: 78.23, 5: 79.84, 6: 81.41, 7: 83.03, 8: 84.69, 9: 86.38, 10: 88.08, 11: 89.89, 12: 91.65, 13: 93.48, 14: 95.37, 15: 97.24, 16: 99.20 },
             CN3: { 1: 77.40, 2: 78.97, 3: 80.54, 4: 82.14, 5: 83.80, 6: 85.46, 7: 87.17, 8: 88.98, 9: 90.82, 10: 92.56, 11: 94.37, 12: 96.27, 13: 98.18, 14: 100.13, 15: 102.12, 16: 103.21, 17: 105.30, 18: 107.45 }
@@ -277,6 +281,7 @@
         
         function populateStepDropdown() {
             const stepSelect = document.getElementById('step');
+            // Populate steps 0 through 18
             for (let i = 0; i <= 18; i++) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -309,43 +314,72 @@
         });
 
 
-        // --- Core Calculation Logic ---
+        // --- Core Calculation Logic (FIXED) ---
 
         /**
-         * Calculates the wage progression for a given offer (TA or UC).
+         * Calculates the wage progression using the compounding logic applied to the new step's 2025 base wage.
          * @param {string} classification - 'CN2' or 'CN3'.
          * @param {number} startStep - The nurse's current 2025 step.
-         * @param {Object} raises - The object of annual percentage raises.
+         * @param {Object} raises - The object of annual percentage raises for the agreement.
          * @returns {Object} { wages: {2025: ..., 2026: ...}, steps: {2025: ..., 2026: ...} }
          */
         function calculateWageProgression(classification, startStep, raises) {
-            let currentWage = payScale[classification][startStep];
-            if (currentWage === undefined) {
-                alert(`Error: Step ${startStep} is not valid for ${classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3'}. Please check the Pay Scale.`);
+            const minStep = classification === 'CN2' ? 0 : 1;
+            const maxStep = classification === 'CN2' ? 16 : 18;
+
+            if (startStep < minStep || startStep > maxStep || payScale[classification][startStep] === undefined) {
+                alert(`Error: Step ${startStep} is not valid for ${classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3'}. Please select a valid starting step.`);
                 return null;
             }
 
-            const maxStep = classification === 'CN2' ? 16 : 18;
             let currentStep = startStep;
-            let wages = { 2025: currentWage };
-            let steps = { 2025: startStep };
+            let wages = {};
+            let steps = {};
+            let cumulativeMultiplier = 1.0;
+
+            // 2025 Base Wage
+            wages[2025] = payScale[classification][startStep];
+            steps[2025] = startStep;
+
 
             for (let year = 2026; year <= 2030; year++) {
-                // Determine the step for the current year
-                if (year > 2026) {
-                    // Step-up logic: move up 1 step every year *after* 2026, up to max step.
-                    if (currentStep < maxStep) {
-                        currentStep++;
-                    }
+                const raise = raises[year];
+
+                if (raise === undefined) {
+                    // Stop if no raise data for the year (e.g., TA stops at 2029)
+                    continue;
+                }
+
+                // 1. Determine the step for the current year (Step-up logic)
+                if (year > 2026 && currentStep < maxStep) {
+                    currentStep++;
+                }
+
+                // Ensure the step is within the valid range for the classification
+                if (payScale[classification][currentStep] === undefined) {
+                    // This should only happen if the step moves outside the table, which is handled by maxStep check.
+                    // If it happens, we assume they stay at maxStep, but the wage calculation will break.
+                    // For safety, we enforce staying at maxStep.
+                    currentStep = maxStep;
                 }
                 
-                // Only calculate wage if a raise is defined for this year
-                if (raises[year]) {
-                    // Apply compounding raise
-                    currentWage *= (1 + raises[year]);
-                    wages[year] = currentWage;
-                    steps[year] = currentStep;
+                // 2. Get the 2025 Base Wage for the current step
+                const baseWageAtCurrentStep = payScale[classification][currentStep];
+
+                if (baseWageAtCurrentStep === undefined) {
+                    // Should not happen due to previous checks, but safety net
+                    console.error(`Wage data missing for ${classification} Step ${currentStep} in year ${year}.`);
+                    continue;
                 }
+
+                // 3. Update the compounding multiplier
+                cumulativeMultiplier *= (1 + raise);
+
+                // 4. Calculate the new wage: 2025 Base Wage * Cumulative Multiplier
+                const newWage = baseWageAtCurrentStep * cumulativeMultiplier;
+
+                wages[year] = newWage;
+                steps[year] = currentStep;
             }
 
             return { wages, steps };
@@ -382,7 +416,7 @@
                 ${generateComparisonTable(taResult, ucResult)}
 
                 <div class="result-card uc-note">
-                    <p><strong>NOTE (UC Initial Offer):</strong> The 27% Pay Raise over 5 years UC kept talking about was **False Marketing Tactics**. They included 2% Step Increase (Which is already included in every contract, no matter what), and 3.3% of Lump Sum. This explains why the inflated number was 27%. Actual pay raise they offered was **13.7% over 5 years**, or **10.7% over 4 years** (excluding 2030).</p>
+                    <p><strong>NOTE (UC Initial Offer):</strong> The 27% Pay Raise over 5 years UC kept talking about was **False Marketing Tactics**. They included 2% Step Increase (Which already included in every contracts no matter what), and 3.3% of Lump Sum. Which explained why the inflated number was 27%. Actual pay raise they offered was **13.7% over 5 years**, or **10.7% over 4 years** (excluding 2030).</p>
                 </div>
                 
                 <h2>📈 Wage Comparison Graph</h2>
@@ -529,7 +563,7 @@
                 let b = parseInt(color.substring(5, 7), 16);
                 return `rgba(${r}, ${g}, ${b}, ${opacity})`;
             }
-            return color; // Fallback for other color formats
+            return color; 
         }
     </script>
 </body>
