@@ -3,504 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pay Raise Calculation Them v.s Us</title>
+    <title>Wage Estimator Sacramento 2026-2029</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
     <style>
+        /* Modern, Responsive CSS */
         :root {
-            --color-they: #e74c3c; /* Red */
-            --color-us: #2ecc71;   /* Green */
-            --color-primary: #3498db; /* Blue */
-            --color-bg: #ecf0f1;
-            --color-text: #2c3e50;
+            --primary-color: #004d99; /* UC/CNA Blue */
+            --secondary-color: #f7b731; /* Accent Yellow */
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: var(--color-bg);
-            color: var(--color-text);
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
             line-height: 1.6;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 90%;
             margin: 0 auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 20px 10px;
         }
 
-        h1 {
+        /* Banner Styling */
+        .banner {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 30px 15px;
             text-align: center;
-            color: var(--color-primary);
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--color-bg);
-            padding-bottom: 15px;
+            border-bottom: 5px solid var(--secondary-color);
         }
 
-        /* Input and Button Styling */
-        .input-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 30px;
+        .banner h1 {
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .banner small {
+            display: block;
+            margin-top: 5px;
+            font-style: italic;
+            font-size: 0.85em;
+        }
+
+        /* Input Form Styling */
+        .input-card {
+            background: white;
             padding: 20px;
-            border: 1px solid #ddd;
             border-radius: 8px;
-            background: #f9f9f9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
-        .input-field-group {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .input-group {
             margin-bottom: 15px;
-            width: 100%;
-            max-width: 450px;
         }
 
-        label {
+        .input-group label {
+            display: block;
             font-weight: bold;
-            white-space: nowrap;
+            margin-bottom: 5px;
+            font-size: 1.1em;
         }
 
-        input[type="number"] {
+        .input-group select {
+            width: 100%;
             padding: 10px;
-            border: 2px solid #ccc;
-            border-radius: 6px;
-            flex-grow: 1;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus {
-            border-color: var(--color-primary);
-            outline: none;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #fff;
+            font-size: 1em;
         }
 
         button {
-            padding: 12px 25px;
-            background-color: var(--color-primary);
-            color: white;
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 12px 20px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 1.1em;
             font-weight: bold;
-            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
-            background-color: #2980b9;
-        }
-        
-        button:active {
-            transform: scale(0.98);
-        }
-        
-        /* Reference Table Styling */
-        .reference-table-container {
-            margin-bottom: 30px;
-            text-align: center;
+            background-color: #e0a82b;
         }
 
-        .reference-table {
+        /* Instruction Styling */
+        .instruction {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #ffeccf;
+            border-left: 5px solid var(--secondary-color);
+            border-radius: 5px;
+        }
+
+        /* Results Styling */
+        #results-area {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px dashed #ccc;
+        }
+
+        .result-card {
+            background: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-card h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+        }
+
+        .result-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
             font-size: 0.9em;
         }
 
-        .reference-table th, .reference-table td {
-            border: 1px solid #eee;
+        .result-table th, .result-table td {
+            border: 1px solid #ddd;
             padding: 10px;
+            text-align: left;
+        }
+
+        .result-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
             text-align: center;
         }
 
-        .reference-table th {
-            background-color: var(--color-primary);
-            color: white;
-            font-weight: normal;
-        }
-        
-        .reference-table tr:nth-child(even) {
-            background-color: #f5f5f5;
+        .result-table td:nth-child(1) {
+            font-weight: bold;
         }
 
-        /* Results Area Styling */
-        #results {
-            margin-top: 40px;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .comparison-section {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 40px;
-            flex-wrap: wrap; /* Allows wrapping on smaller screens */
-        }
-
-        .offer-card {
-            flex: 1;
-            min-width: 300px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .offer-card.they {
-            background-color: #fbecec;
-            border-left: 5px solid var(--color-they);
-        }
-
-        .offer-card.us {
-            background-color: #ebfcf2;
-            border-left: 5px solid var(--color-us);
-        }
-
-        .offer-card h2 {
-            margin-top: 0;
-            font-size: 1.5em;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .offer-card.they h2 { color: var(--color-they); }
-        .offer-card.us h2 { color: var(--color-us); }
-
-        .offer-table {
-            width: 100%;
-            border-collapse: collapse;
+        .note {
+            padding: 15px;
             margin-top: 15px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-style: italic;
         }
 
-        .offer-table th, .offer-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
+        .ta-note {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: var(--primary-color);
+            font-weight: bold;
         }
 
-        .total-row {
+        .uc-note {
+            background-color: #fff0f6;
+            border: 1px solid #ffadd2;
+            color: var(--danger-color);
             font-weight: bold;
-            background-color: #f0f0f0;
         }
-        
-        .rate-per-hour {
-            font-weight: bold;
-            font-size: 1.1em;
+
+        .pay-scale {
+            margin-top: 30px;
+        }
+
+        .pay-scale h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 15px;
         }
 
         /* Chart Styling */
         .chart-container {
-            padding-top: 20px;
+            width: 100%;
+            margin-top: 20px;
+            padding: 20px 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .chart-bar-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-
-        .chart-label {
-            width: 150px;
-            font-size: 1.1em;
-        }
-
-        .chart-bar-wrapper {
-            flex-grow: 1;
-            height: 30px;
-            background-color: #eee;
-            border-radius: 4px;
-            margin-right: 10px;
-            overflow: hidden;
-        }
-
-        .chart-bar {
-            height: 100%;
-            transition: width 1s ease-out;
-            border-radius: 4px;
-            min-width: 5px; /* Ensure tiny bars are visible */
-        }
-
-        .chart-bar.they { background-color: var(--color-they); }
-        .chart-bar.us { background-color: var(--color-us); }
-        
-        .chart-value {
-            font-size: 1.2em;
-        }
-        
-        /* Media Queries for Responsiveness */
-        @media (max-width: 768px) {
+        /* Responsive adjustments */
+        @media (min-width: 600px) {
             .container {
-                padding: 15px;
+                max-width: 700px;
             }
-            
-            .comparison-section {
-                flex-direction: column;
-                gap: 20px;
+            .banner h1 {
+                font-size: 2.5em;
             }
-
-            .offer-card {
-                min-width: unset;
-            }
-            
-            .input-field-group {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .chart-label {
-                width: 100px;
+            .input-group select {
+                padding: 12px;
             }
         }
     </style>
 </head>
 <body>
 
+    <div class="banner">
+        <h1>WAGE ESTIMATOR SACRAMENTO 2026-2029 CNA CONTRACT</h1>
+        <small>Disclaimer: Rough estimate, real numbers might vary case by case.</small>
+        <small>Coded by AI - Presented by Dai Dang</small>
+    </div>
+
     <div class="container">
-        <h1>💰 Pay Raise Calculation Them v.s Us</h1>
+        <div class="input-card">
+            
+            <div class="input-group">
+                <label for="classification">Nursing Classification</label>
+                <select id="classification">
+                    <option value="CN2">Clinical Nurse 2</option>
+                    <option value="CN3">Clinical Nurse 3</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="step">Step (2025 Current)</label>
+                <select id="step">
+                    </select>
+            </div>
+
+            <button onclick="generateWages()">Generate Comparison</button>
+
+            <div class="instruction">
+                <p>***<span style="font-weight: bold; font-style: italic;">Please select your Nursing Classification and Step. Refer to 2025 Pay Scale below for your current step. If you don't know your step, check your paycheck and look for Pay Rate on top of your paycheck and compare to the Pay Scale.***</span></p>
+            </div>
+        </div>
+
+        <div id="results-area" style="display:none;">
+            </div>
         
-        <div class="input-area">
-            <div class="input-field-group">
-                <label for="currentPay">Your current pay per hour:</label>
-                <input type="number" id="currentPay" placeholder="Example: 80.29" step="0.01">
-            </div>
-            <button onclick="calculateRaise()">Generate Results</button>
-        </div>
-
-        <div class="reference-table-container">
-            <h2>Reference Steps and Pay Rate Per Hour</h2>
-            <table class="reference-table">
-                <thead>
-                    <tr>
-                        <th>Step</th>
-                        <th>Rate ($/hr)</th>
-                        <th>Step</th>
-                        <th>Rate ($/hr)</th>
-                        <th>Step</th>
-                        <th>Rate ($/hr)</th>
-                        <th>Step</th>
-                        <th>Rate ($/hr)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>0</td><td>70.21</td>
-                        <td>5</td><td>79.84</td>
-                        <td>10</td><td>88.08</td>
-                        <td>15</td><td>97.24</td>
-                    </tr>
-                    <tr>
-                        <td>1</td><td>73.72</td>
-                        <td>6</td><td>81.41</td>
-                        <td>11</td><td>89.89</td>
-                        <td>16</td><td>99.20</td>
-                    </tr>
-                    <tr>
-                        <td>2</td><td>75.17</td>
-                        <td>7</td><td>83.03</td>
-                        <td>12</td><td>91.65</td>
-                        <td></td><td></td>
-                    </tr>
-                    <tr>
-                        <td>3</td><td>76.70</td>
-                        <td>8</td><td>84.69</td>
-                        <td>13</td><td>93.48</td>
-                        <td></td><td></td>
-                    </tr>
-                    <tr>
-                        <td>4</td><td>78.23</td>
-                        <td>9</td><td>86.38</td>
-                        <td>14</td><td>95.37</td>
-                        <td></td><td></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="results">
-            <div style="text-align: center; margin-bottom: 30px;">
-                <p>Your Starting Pay: <strong style="font-size: 1.5em; color: var(--color-primary);">$<span id="startingPayDisplay">0.00</span>/hr</strong></p>
-                <p class="us-pay-note" style="color: var(--color-us); font-style: italic; display: none;">
-                    *For the "Us" scenario, your starting rate is internally adjusted to <strong style="font-size: 1.1em;">$<span id="usStartingPayDisplay">0.00</span>/hr</strong> for calculation.
-                </p>
-            </div>
-            
-            <div class="comparison-section">
-                <div class="offer-card they">
-                    <h2>Their Offer 🟥</h2>
-                    <h3>Fake total 27% raise</h3>
-                    <p style="font-weight: bold; margin-bottom: 10px;">Actual Yearly Raises: 3.2%, 2.5%, 2.5%, 2.5%, 3%</p>
-                    <table class="offer-table">
-                        <thead>
-                            <tr><th>Year</th><th>Raise %</th><th>New Pay ($/hr)</th></tr>
-                        </thead>
-                        <tbody id="they-results-body"></tbody>
-                        <tfoot>
-                            <tr class="total-row">
-                                <td colspan="2">Final Pay (Year 5)</td>
-                                <td class="rate-per-hour" id="they-final-rate">$0.00</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
-                <div class="offer-card us">
-                    <h2>Our Offer 🟩</h2>
-                    <h3>Matching San Francisco Counterpart</h3>
-                    <p style="font-weight: bold; margin-bottom: 10px;">Actual Yearly Raises: 7%, 7%, 6%, 6%</p>
-                    <table class="offer-table">
-                        <thead>
-                            <tr><th>Year</th><th>Raise %</th><th>New Pay ($/hr)</th></tr>
-                        </thead>
-                        <tbody id="us-results-body"></tbody>
-                        <tfoot>
-                            <tr class="total-row">
-                                <td colspan="2">Final Pay (Year 4)</td>
-                                <td class="rate-per-hour" id="us-final-rate">$0.00</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-
-            <div class="chart-container">
-                <h2>📊 Final Pay Rate Comparison</h2>
-                
-                <div class="chart-bar-container">
-                    <div class="chart-label">They (Year 5)</div>
-                    <div class="chart-bar-wrapper">
-                        <div id="they-chart-bar" class="chart-bar they" style="width: 0%;"></div>
-                    </div>
-                    <div class="chart-value" id="they-chart-value">$0.00</div>
-                </div>
-
-                <div class="chart-bar-container">
-                    <div class="chart-label">Us (Year 4)</div>
-                    <div class="chart-bar-wrapper">
-                        <div id="us-chart-bar" class="chart-bar us" style="width: 0%;"></div>
-                    </div>
-                    <div class="chart-value" id="us-chart-value">$0.00</div>
-                </div>
-            </div>
-            
-            <div style="margin-top: 30px; padding: 20px; border: 1px dashed #ccc; border-radius: 8px;">
-                <h2>⭐ Comparison Summary</h2>
-                <p>The **"Our"** offer final pay is **<span id="difference-amount" style="font-weight: bold;">$0.00</span>/hr** (<span id="difference-percent" style="font-weight: bold;">0%</span>) <span id="comparison-word" style="font-weight: bold;">higher</span> than the **"Their"** offer final pay.</p>
-                <p><span id="year-difference" style="font-weight: bold;">The "Our" offer achieves its final rate in 4 years, while the "Their" offer takes 5 years.</span></p>
+        <div class="pay-scale">
+            <h2>2025 Current Pay Scale</h2>
+            <div class="result-card">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Step</th>
+                            <th>Clinical Nurse 2 (Min: 0, Max: 16)</th>
+                            <th>Clinical Nurse 3 (Min: 1, Max: 18)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pay-scale-body">
+                        </tbody>
+                </table>
             </div>
         </div>
+
     </div>
 
     <script>
-        const THEY_RAISES = [0.032, 0.025, 0.025, 0.025, 0.03];
-        const US_RAISES = [0.07, 0.07, 0.06, 0.06];
-        const US_STARTING_RATES = [
-            { max: 73.72, rate: 84.79 },
-            { max: 75.17, rate: 92.25 },
-            { max: 76.70, rate: 95.55 },
-            { max: 78.23, rate: 98.98 },
-            { max: 79.84, rate: 102.55 },
-            { max: 84.69, rate: 104.59 },
-            { max: 86.38, rate: 106.68 },
-            { max: 89.89, rate: 108.83 },
-            { min: 89.89, rate: 110.97 } // The ">=" case
-        ];
+        const payScale = {
+            CN2: { 0: 70.21, 1: 73.72, 2: 75.17, 3: 76.70, 4: 78.23, 5: 79.84, 6: 81.41, 7: 83.03, 8: 84.69, 9: 86.38, 10: 88.08, 11: 89.89, 12: 91.65, 13: 93.48, 14: 95.37, 15: 97.24, 16: 99.20 },
+            CN3: { 1: 77.40, 2: 78.97, 3: 80.54, 4: 82.14, 5: 83.80, 6: 85.46, 7: 87.17, 8: 88.98, 9: 90.82, 10: 92.56, 11: 94.37, 12: 96.27, 13: 98.18, 14: 100.13, 15: 102.12, 16: 103.21, 17: 105.30, 18: 107.45 }
+        };
 
-        function formatCurrency(number) {
-            return parseFloat(number).toFixed(2);
-        }
+        const taRaises = { 2026: 0.05, 2027: 0.05, 2028: 0.045, 2029: 0.04 };
+        const ucOffers = { 2026: 0.032, 2027: 0.025, 2028: 0.025, 2029: 0.025, 2030: 0.03 };
 
-        function getUsStartingRate(currentPay) {
-            if (currentPay >= 89.89) {
-                return US_STARTING_RATES.find(r => r.min === 89.89).rate;
+        // --- Initial Setup Functions ---
+        
+        function populateStepDropdown() {
+            const stepSelect = document.getElementById('step');
+            for (let i = 0; i <= 18; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Step ${i}`;
+                stepSelect.appendChild(option);
             }
-            const match = US_STARTING_RATES.find(r => currentPay < r.max);
-            return match ? match.rate : currentPay; // Fallback to currentPay if no match (shouldn't happen with given logic)
         }
 
-        function calculateResults(startingPay, raises, resultsBodyId) {
-            let currentRate = startingPay;
-            let html = '';
-            
-            raises.forEach((raise, index) => {
-                const year = index + 1;
-                const newRate = currentRate * (1 + raise);
-                html += `
+        function populatePayScaleTable() {
+            const tbody = document.getElementById('pay-scale-body');
+            for (let i = 0; i <= 18; i++) {
+                let cn2Wage = payScale.CN2[i] ? `$${payScale.CN2[i].toFixed(2)}` : '';
+                let cn3Wage = payScale.CN3[i] ? `$${payScale.CN3[i].toFixed(2)}` : '';
+
+                let row = `
                     <tr>
-                        <td>Year ${year}</td>
-                        <td>${(raise * 100).toFixed(1)}%</td>
-                        <td>$${formatCurrency(newRate)}</td>
+                        <td>${i}</td>
+                        <td style="text-align: center;">${cn2Wage}</td>
+                        <td style="text-align: center;">${cn3Wage}</td>
                     </tr>
                 `;
-                currentRate = newRate;
-            });
-            
-            document.getElementById(resultsBodyId).innerHTML = html;
-            return currentRate;
+                tbody.insertAdjacentHTML('beforeend', row);
+            }
         }
 
-        function calculateRaise() {
-            const currentPayInput = document.getElementById('currentPay').value;
-            const currentPay = parseFloat(currentPayInput);
+        // Run setup functions on load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateStepDropdown();
+            populatePayScaleTable();
+        });
 
-            if (isNaN(currentPay) || currentPay <= 0) {
-                alert('Please enter a valid positive number for your current pay.');
+
+        // --- Core Calculation Logic ---
+
+        /**
+         * Calculates the wage progression for a given offer (TA or UC).
+         * @param {string} classification - 'CN2' or 'CN3'.
+         * @param {number} startStep - The nurse's current 2025 step.
+         * @param {Object} raises - The object of annual percentage raises.
+         * @returns {Object} { wages: {2025: ..., 2026: ...}, steps: {2025: ..., 2026: ...} }
+         */
+        function calculateWageProgression(classification, startStep, raises) {
+            let currentWage = payScale[classification][startStep];
+            if (currentWage === undefined) {
+                alert(`Error: Step ${startStep} is not valid for ${classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3'}. Please check the Pay Scale.`);
+                return null;
+            }
+
+            const maxStep = classification === 'CN2' ? 16 : 18;
+            let currentStep = startStep;
+            let wages = { 2025: currentWage };
+            let steps = { 2025: startStep };
+
+            for (let year = 2026; year <= 2030; year++) {
+                // Determine the step for the current year
+                if (year > 2026) {
+                    // Step-up logic: move up 1 step every year *after* 2026, up to max step.
+                    if (currentStep < maxStep) {
+                        currentStep++;
+                    }
+                }
+                
+                // Only calculate wage if a raise is defined for this year
+                if (raises[year]) {
+                    // Apply compounding raise
+                    currentWage *= (1 + raises[year]);
+                    wages[year] = currentWage;
+                    steps[year] = currentStep;
+                }
+            }
+
+            return { wages, steps };
+        }
+
+        // --- Result Generation and Display ---
+        
+        let wageChart = null; // Variable to hold the Chart.js instance
+
+        function generateWages() {
+            const classification = document.getElementById('classification').value;
+            const startStep = parseInt(document.getElementById('step').value);
+            const classificationName = classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3';
+            const resultsArea = document.getElementById('results-area');
+
+            // --- 1. Calculations ---
+            const taResult = calculateWageProgression(classification, startStep, taRaises);
+            const ucResult = calculateWageProgression(classification, startStep, ucOffers);
+
+            if (!taResult || !ucResult) {
+                resultsArea.style.display = 'none';
                 return;
             }
-
-            // --- Starting Pay Display ---
-            document.getElementById('startingPayDisplay').textContent = formatCurrency(currentPay);
-            document.getElementById('results').style.opacity = 1;
-
-            // --- Calculate THEY Offer ---
-            const theyFinalRate = calculateResults(currentPay, THEY_RAISES, 'they-results-body');
-            document.getElementById('they-final-rate').textContent = `$${formatCurrency(theyFinalRate)}`;
             
-            // --- Calculate US Offer ---
-            const usStartingRate = getUsStartingRate(currentPay);
-            document.getElementById('usStartingPayDisplay').textContent = formatCurrency(usStartingRate);
-            document.querySelector('.us-pay-note').style.display = (usStartingRate !== currentPay) ? 'block' : 'none';
+            // --- 2. HTML Rendering ---
+            let html = `
+                <div class="result-card ta-note">
+                    <p><strong>Tentative Agreement secured 18.5% pay raise over 4 years v.s. UC Initial Offer 13.7% over 5 years or 10.7% over 4 years. Details below!</strong></p>
+                </div>
 
-            const usFinalRate = calculateResults(usStartingRate, US_RAISES, 'us-results-body');
-            document.getElementById('us-final-rate').textContent = `$${formatCurrency(usFinalRate)}`;
+                <h2>💰 Estimated Hourly Wage Comparison</h2>
+                <p><strong>Classification:</strong> ${classificationName} | <strong>Starting 2025 Step:</strong> ${startStep}</p>
 
-            // --- Charting and Summary ---
-            const maxRate = Math.max(theyFinalRate, usFinalRate);
-            const theyPercent = (theyFinalRate / maxRate) * 100;
-            const usPercent = (usFinalRate / maxRate) * 100;
+                ${generateComparisonTable(taResult, ucResult)}
 
-            // Update Chart Bars
-            document.getElementById('they-chart-bar').style.width = `${theyPercent}%`;
-            document.getElementById('us-chart-bar').style.width = `${usPercent}%`;
+                <div class="result-card uc-note">
+                    <p><strong>NOTE (UC Initial Offer):</strong> The 27% Pay Raise over 5 years UC kept talking about was **False Marketing Tactics**. They included 2% Step Increase (Which is already included in every contract, no matter what), and 3.3% of Lump Sum. This explains why the inflated number was 27%. Actual pay raise they offered was **13.7% over 5 years**, or **10.7% over 4 years** (excluding 2030).</p>
+                </div>
+                
+                <h2>📈 Wage Comparison Graph</h2>
+                <div class="chart-container">
+                    <canvas id="wageChart"></canvas>
+                </div>
+            `;
             
-            // Update Chart Values
-            document.getElementById('they-chart-value').textContent = `$${formatCurrency(theyFinalRate)}`;
-            document.getElementById('us-chart-value').textContent = `$${formatCurrency(usFinalRate)}`;
+            resultsArea.innerHTML = html;
+            resultsArea.style.display = 'block';
+
+            // --- 3. Graph Generation ---
+            createWageChart(taResult, ucResult);
+        }
+
+        function generateComparisonTable(taResult, ucResult) {
+            let table = `
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Tentative Agreement (TA)</th>
+                            <th>UC Initial Offer (UC)</th>
+                            <th>Step (Common)</th>
+                            <th>TA Raise</th>
+                            <th>UC Raise</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            const years = [2025, 2026, 2027, 2028, 2029, 2030];
             
-            // Update Comparison Summary
-            const difference = Math.abs(usFinalRate - theyFinalRate);
-            const differencePercentage = ((difference / theyFinalRate) * 100).toFixed(2);
-            
-            document.getElementById('difference-amount').textContent = `$${formatCurrency(difference)}`;
-            document.getElementById('difference-percent').textContent = `${differencePercentage}%`;
-            
-            let comparisonWord = '';
-            if (usFinalRate > theyFinalRate) {
-                comparisonWord = 'higher';
-            } else if (usFinalRate < theyFinalRate) {
-                comparisonWord = 'lower';
-            } else {
-                comparisonWord = 'the same';
-                document.getElementById('difference-percent').textContent = '0%';
+            years.forEach(year => {
+                const taWage = taResult.wages[year];
+                const ucWage = ucResult.wages[year];
+                const step = taResult.steps[year] !== undefined ? taResult.steps[year] : (ucResult.steps[year] !== undefined ? ucResult.steps[year] : '');
+                const taR = taRaises[year] ? (taRaises[year] * 100).toFixed(1) + '%' : '';
+                const ucR = ucOffers[year] ? (ucOffers[year] * 100).toFixed(1) + '%' : '';
+
+                if (taWage !== undefined || ucWage !== undefined) {
+                     table += `
+                        <tr>
+                            <td>${year}</td>
+                            <td>${taWage ? '$' + taWage.toFixed(2) : '-'}</td>
+                            <td>${ucWage ? '$' + ucWage.toFixed(2) : '-'}</td>
+                            <td style="text-align: center;">${step !== '' ? 'Step ' + step : '-'}</td>
+                            <td style="text-align: center;">${taR}</td>
+                            <td style="text-align: center;">${ucR}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            table += `</tbody></table>`;
+            return table;
+        }
+
+        function createWageChart(taResult, ucResult) {
+            // Get years that have data in both (up to 2029 for clean 4-year comparison)
+            const labels = Object.keys(taResult.wages).filter(year => parseInt(year) <= 2029).map(year => `${year} (Step ${taResult.steps[year]})`);
+            const taData = labels.map(label => {
+                const year = label.substring(0, 4);
+                return taResult.wages[year];
+            });
+            const ucData = labels.map(label => {
+                const year = label.substring(0, 4);
+                return ucResult.wages[year];
+            });
+
+            const ctx = document.getElementById('wageChart').getContext('2d');
+
+            // Destroy the previous chart instance if it exists
+            if (wageChart) {
+                wageChart.destroy();
             }
-            
-            document.getElementById('comparison-word').textContent = comparisonWord;
+
+            wageChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tentative Agreement (TA)',
+                            data: taData,
+                            borderColor: varToRgba('--primary-color', 1),
+                            backgroundColor: varToRgba('--primary-color', 0.1),
+                            tension: 0.2,
+                            pointRadius: 5,
+                            fill: false,
+                        },
+                        {
+                            label: 'UC Initial Offer (UC)',
+                            data: ucData,
+                            borderColor: varToRgba('--danger-color', 1),
+                            backgroundColor: varToRgba('--danger-color', 0.1),
+                            tension: 0.2,
+                            pointRadius: 5,
+                            fill: false,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 14 }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Hourly Wage Comparison Over Time',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Hourly Wage ($)'
+                            },
+                            beginAtZero: false
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year (and Step)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Helper function to get the actual RGBA color from a CSS variable
+        function varToRgba(cssVar, opacity) {
+            const color = getComputedStyle(document.documentElement).getPropertyValue(cssVar).trim();
+            // A very simple heuristic for converting simple hex/rgb to rgba for Chart.js
+            if (color.startsWith('#')) {
+                let r = parseInt(color.substring(1, 3), 16);
+                let g = parseInt(color.substring(3, 5), 16);
+                let b = parseInt(color.substring(5, 7), 16);
+                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            }
+            return color; // Fallback for other color formats
         }
     </script>
 </body>
 </html>
-
