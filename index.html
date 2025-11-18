@@ -188,20 +188,25 @@
         
         /* NEW: Total Summary Box */
         .total-summary {
-            background-color: #fff0f6;
-            border: 2px solid var(--danger-color);
+            background: white; /* Resetting card background */
+            border: none;
             text-align: center;
             padding: 15px;
+            /* Using a light blue background for the overall summary card */
+            background-color: #e6f7ff; 
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
         .total-summary h3 {
-            color: var(--danger-color);
-            margin: 0 0 10px 0;
-            font-size: 1.3em;
+            color: var(--primary-color);
+            margin: 0 0 15px 0;
+            font-size: 1.4em;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
         }
         .total-summary p {
             font-size: 1.5em;
             font-weight: bold;
-            color: var(--danger-color);
             margin: 0;
         }
         .total-summary small {
@@ -466,11 +471,11 @@
                 </div>
 
                 <!-- NEW: Summary Box and 2nd Chart -->
-                <div id="total-summary-area" class="result-card total-summary">
+                <div id="total-summary-area" class="total-summary">
                     <!-- Summary content will be injected by JS -->
                 </div>
                 
-                <h2>💵 TA vs. UC: Additional Annual Salary</h2>
+                <h2>💵 Total Annual Wage Increase (2025 Base to 2029 Rate)</h2>
                 <div class="chart-container">
                     <canvas id="differenceChart"></canvas>
                 </div>
@@ -482,7 +487,7 @@
             // --- 3. Graph Generation ---
             createWageChart(taResult, ucResult);
             // NEW: Call function to create the second chart and summary
-            createDifferenceChartAndSummary(taResult, ucResult); 
+            createTotalIncreaseChartAndSummary(taResult, ucResult); 
         }
 
         function generateComparisonTable(taResult, ucResult) {
@@ -610,33 +615,46 @@
             });
         }
 
-        // --- NEW: Second Chart and Summary Function ---
+        // --- UPDATED: New Chart and Summary Function based on (2029 Rate - 2025 Rate) * 2080 ---
 
-        function createDifferenceChartAndSummary(taResult, ucResult) {
-            const HOURS_PER_YEAR = 2080; // Standard 40-hour work week
-            const labels = [];
-            const diffData = [];
-            let totalDifference = 0;
+        function createTotalIncreaseChartAndSummary(taResult, ucResult) {
+            const HOURS_PER_YEAR = 2080; 
 
-            const years = [2026, 2027, 2028, 2029]; // Compare the 4 years of the TA
+            // Calculate Total Increase (2029 vs 2025) for TA
+            // (Pay Rate in 2029 - Pay Rate in 2025 )*2080
+            const taIncreaseHourly = taResult.wages[2029] - taResult.wages[2025];
+            const totalIncreaseTA = taIncreaseHourly * HOURS_PER_YEAR;
 
-            years.forEach(year => {
-                // We must have data for both to compare
-                if (taResult.wages[year] && ucResult.wages[year]) {
-                    labels.push(year);
-                    const hourlyDiff = taResult.wages[year] - ucResult.wages[year];
-                    const annualDiff = hourlyDiff * HOURS_PER_YEAR;
-                    diffData.push(annualDiff);
-                    totalDifference += annualDiff;
-                }
-            });
+            // Calculate Total Increase (2029 vs 2025) for UC
+            const ucIncreaseHourly = ucResult.wages[2029] - ucResult.wages[2025];
+            const totalIncreaseUC = ucIncreaseHourly * HOURS_PER_YEAR;
+            
+            // The difference between the two total increases (used for the summary box header)
+            const overallDifference = totalIncreaseTA - totalIncreaseUC;
 
             // 1. Populate the Total Summary Box
             const summaryBox = document.getElementById('total-summary-area');
+            
+            const formattedTotalIncreaseTA = totalIncreaseTA.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formattedTotalIncreaseUC = totalIncreaseUC.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formattedOverallDifference = overallDifference.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const overallDifferenceColor = overallDifference >= 0 ? 'var(--danger-color)' : 'var(--primary-color)';
+
+
             summaryBox.innerHTML = `
-                <h3>Total Additional Earnings (2026-2029)</h3>
-                <p>+ $${totalDifference.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                <small>Based on the Tentative Agreement vs. the UC Initial Offer over 4 years (assumes 2,080 work hours/year).</small>
+                <h3>Total Wage Increase (2025 Base to 2029 Rate)</h3>
+                <p style="font-size: 1.2em; font-weight: normal; margin-bottom: 5px; color: ${varToRgba('--danger-color', 1)};">
+                    TA Increase: <strong>+ $${formattedTotalIncreaseTA}</strong>
+                </p>
+                <p style="font-size: 1.2em; font-weight: normal; margin-bottom: 10px; color: ${varToRgba('--primary-color', 1)};">
+                    UC Offer Increase: <strong>+ $${formattedTotalIncreaseUC}</strong>
+                </p>
+                <div style="padding-top: 10px; border-top: 1px dashed #ccc; margin-top: 10px;">
+                    <p style="font-size: 1.6em; font-weight: bold; color: ${overallDifferenceColor}; margin: 0;">
+                        TA Advantage: + $${formattedOverallDifference}
+                    </p>
+                </div>
+                <small>This shows the annual salary increase from the 2025 rate to the 2029 rate (assuming 2,080 work hours/year).</small>
             `;
 
             // 2. Create the Bar Chart
@@ -649,13 +667,19 @@
             differenceChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: ['Tentative Agreement (TA)', 'UC Initial Offer (UC)'],
                     datasets: [
                         {
-                            label: 'Additional Annual Salary (TA vs UC)',
-                            data: diffData,
-                            backgroundColor: varToRgba('--danger-color', 0.7), // Use TA Red
-                            borderColor: varToRgba('--danger-color', 1),
+                            label: 'Total Annual Wage Increase (2025 to 2029)',
+                            data: [totalIncreaseTA, totalIncreaseUC],
+                            backgroundColor: [
+                                varToRgba('--danger-color', 0.7), // TA Red
+                                varToRgba('--primary-color', 0.7) // UC Navy
+                            ], 
+                            borderColor: [
+                                varToRgba('--danger-color', 1),
+                                varToRgba('--primary-color', 1)
+                            ],
                             borderWidth: 1
                         }
                     ]
@@ -664,19 +688,30 @@
                     responsive: true,
                     plugins: {
                         legend: {
-                            display: false // Only one dataset, legend is redundant
+                            display: false 
                         },
                         title: {
                             display: true,
-                            text: 'Additional Money Earned Per Year (TA vs. UC)',
+                            text: 'Total Annual Wage Increase (2025 Base to 2029 Rate)',
                             font: { size: 16 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (context.parsed.y !== null) {
+                                        label += ': $' + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    }
+                                    return label;
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
                             title: {
                                 display: true,
-                                text: 'Additional Salary ($)'
+                                text: 'Total Annual Increase ($)'
                             },
                             ticks: {
                                 // Format ticks as currency
@@ -687,8 +722,7 @@
                         },
                         x: {
                             title: {
-                                display: true,
-                                text: 'Year'
+                                display: false 
                             }
                         }
                     }
