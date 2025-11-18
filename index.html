@@ -186,7 +186,7 @@
             font-weight: bold;
         }
         
-        /* NEW: Total Summary Box */
+        /* Summary Box */
         .total-summary {
             background: white; /* Resetting card background */
             border: none;
@@ -432,8 +432,9 @@
 
         // --- Result Generation and Display ---
         
-        let wageChart = null; // Variable for the first chart
-        let differenceChart = null; // Variable for the SECOND chart
+        let wageChart = null; // Line Chart for Hourly Wage Progression
+        let differenceChart = null; // Bar Chart for Annual Wage Increase (2029 vs 2025)
+        let annualSalaryChart = null; // New Bar Chart for Annual Salary Comparison
 
         function generateWages() {
             const classification = document.getElementById('classification').value;
@@ -450,7 +451,7 @@
                 return;
             }
             
-            // --- 2. HTML Rendering (Now includes new elements for summary and 2nd chart) ---
+            // --- 2. HTML Rendering (Updated to include new annual salary section) ---
             let html = `
                 <div class="result-card ta-note">
                     <p><strong>Tentative Agreement secured 18.5% pay raise over 4 years v.s. UC Initial Offer 13.7% over 5 years or 10.7% over 4 years. Details below!</strong></p>
@@ -465,19 +466,29 @@
                     <p><strong>NOTE (UC Initial Offer):</strong> The 27% Pay Raise over 5 years UC kept talking about was **False Marketing Tactics**. They included 2% Step Increase (Which already included in every contracts no matter what), and 3.3% of Lump Sum. Which explained why the inflated number was 27%. Actual pay raise they offered was **13.7% over 5 years**, or **10.7% over 4 years** (excluding 2030).</p>
                 </div>
                 
-                <h2>📈 Wage Progression Graph</h2>
+                <h2>📈 Wage Progression Graph (Hourly Rate)</h2>
                 <div class="chart-container">
                     <canvas id="wageChart"></canvas>
                 </div>
 
-                <!-- NEW: Summary Box and 2nd Chart -->
-                <div id="total-summary-area" class="total-summary">
-                    <!-- Summary content will be injected by JS -->
+                <!-- Summary Box for Annual Increase (2025 to 2029) -->
+                <div id="total-summary-area" class="total-summary" style="margin-top: 20px;">
+                    <!-- Annual Increase Summary content will be injected by JS -->
                 </div>
                 
                 <h2>💵 Total Annual Wage Increase (2025 Base to 2029 Rate)</h2>
                 <div class="chart-container">
                     <canvas id="differenceChart"></canvas>
+                </div>
+
+                <!-- NEW: Summary Box for Annual Salary Comparison (2029 Final) -->
+                <div id="annual-salary-summary-area" class="total-summary" style="margin-top: 20px;">
+                    <!-- Annual Salary Summary content will be injected by JS -->
+                </div>
+                
+                <h2> Yearly Annual Salary Comparison (2026-2029)</h2>
+                <div class="chart-container">
+                    <canvas id="annualSalaryChart"></canvas>
                 </div>
             `;
             
@@ -486,8 +497,9 @@
 
             // --- 3. Graph Generation ---
             createWageChart(taResult, ucResult);
-            // NEW: Call function to create the second chart and summary
-            createTotalIncreaseChartAndSummary(taResult, ucResult); 
+            createTotalIncreaseChartAndSummary(taResult, ucResult);
+            // NEW: Call function to create the annual salary chart and summary
+            createAnnualSalaryChartAndSummary(taResult, ucResult); 
         }
 
         function generateComparisonTable(taResult, ucResult) {
@@ -615,13 +627,12 @@
             });
         }
 
-        // --- UPDATED: New Chart and Summary Function based on (2029 Rate - 2025 Rate) * 2080 ---
+        // --- Total Annual Wage Increase (2025 Base to 2029 Rate) ---
 
         function createTotalIncreaseChartAndSummary(taResult, ucResult) {
             const HOURS_PER_YEAR = 2080; 
 
             // Calculate Total Increase (2029 vs 2025) for TA
-            // (Pay Rate in 2029 - Pay Rate in 2025 )*2080
             const taIncreaseHourly = taResult.wages[2029] - taResult.wages[2025];
             const totalIncreaseTA = taIncreaseHourly * HOURS_PER_YEAR;
 
@@ -723,6 +734,119 @@
                         x: {
                             title: {
                                 display: false 
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+
+        // --- NEW: Annual Salary Comparison (Year-by-Year) ---
+
+        function createAnnualSalaryChartAndSummary(taResult, ucResult) {
+            const HOURS_PER_YEAR = 2080;
+            const years = [2026, 2027, 2028, 2029];
+            
+            // Calculate Annual Salaries for each year
+            const taAnnualSalaries = years.map(year => taResult.wages[year] * HOURS_PER_YEAR);
+            const ucAnnualSalaries = years.map(year => ucResult.wages[year] * HOURS_PER_YEAR);
+            
+            // Summary calculation: Difference in FINAL 2029 Annual Salary
+            const ta2029Salary = taAnnualSalaries[taAnnualSalaries.length - 1];
+            const uc2029Salary = ucAnnualSalaries[ucAnnualSalaries.length - 1];
+            const difference = ta2029Salary - uc2029Salary;
+            
+            // 1. Populate the Summary Box
+            const summaryBox = document.getElementById('annual-salary-summary-area');
+            
+            const formattedTA2029Salary = ta2029Salary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formattedUC2029Salary = uc2029Salary.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const formattedDifference = difference.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            const differenceColor = difference >= 0 ? 'var(--danger-color)' : 'var(--primary-color)';
+
+            summaryBox.innerHTML = `
+                <h3>Final Annual Salary Comparison (2029)</h3>
+                <p style="font-size: 1.2em; font-weight: normal; margin-bottom: 5px; color: ${varToRgba('--danger-color', 1)};">
+                    TA 2029 Annual Salary: <strong>$${formattedTA2029Salary}</strong>
+                </p>
+                <p style="font-size: 1.2em; font-weight: normal; margin-bottom: 10px; color: ${varToRgba('--primary-color', 1)};">
+                    UC Offer 2029 Annual Salary: <strong>$${formattedUC2029Salary}</strong>
+                </p>
+                <div style="padding-top: 10px; border-top: 1px dashed #ccc; margin-top: 10px;">
+                    <p style="font-size: 1.6em; font-weight: bold; color: ${differenceColor}; margin: 0;">
+                        TA Annual Advantage in 2029: + $${formattedDifference}
+                    </p>
+                </div>
+                <small>This shows the annual salary difference in the final year of the contract (assuming 2,080 work hours/year).</small>
+            `;
+
+            // 2. Create the Bar Chart
+            const ctx = document.getElementById('annualSalaryChart').getContext('2d');
+
+            if (annualSalaryChart) {
+                annualSalaryChart.destroy();
+            }
+
+            annualSalaryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: years.map(y => y.toString()),
+                    datasets: [
+                        {
+                            label: 'Tentative Agreement (TA) Annual Salary',
+                            data: taAnnualSalaries,
+                            backgroundColor: varToRgba('--danger-color', 0.8),
+                            borderColor: varToRgba('--danger-color', 1),
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'UC Initial Offer (UC) Annual Salary',
+                            data: ucAnnualSalaries,
+                            backgroundColor: varToRgba('--primary-color', 0.8),
+                            borderColor: varToRgba('--primary-color', 1),
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { size: 14 }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Yearly Annual Salary Comparison (2026-2029)',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (context.parsed.y !== null) {
+                                        label += ': $' + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: false,
+                            title: { display: true, text: 'Contract Year' }
+                        },
+                        y: {
+                            stacked: false,
+                            title: { display: true, text: 'Annual Salary ($)' },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return '$' + value.toLocaleString();
+                                }
                             }
                         }
                     }
