@@ -8,12 +8,12 @@
     <style>
         /* Modern, Responsive CSS */
         :root {
-            --primary-color: #004d99; /* UC/CNA Blue */
+            --primary-color: #004d99; /* UC Navy Blue (Used for UC Offers in chart/table) */
             --secondary-color: #f7b731; /* Accent Yellow */
             --background-color: #f4f7f6;
             --text-color: #333;
             --success-color: #28a745;
-            --danger-color: #dc3545;
+            --danger-color: #dc3545; /* CNA Red (Used for TA in chart/table) */
         }
 
         body {
@@ -130,6 +130,10 @@
             border-bottom: 2px solid var(--primary-color);
             padding-bottom: 5px;
         }
+        
+        #results-area h2, #results-area h3 {
+            text-align: center;
+        }
 
         .result-table {
             width: 100%;
@@ -154,6 +158,19 @@
             font-weight: bold;
         }
 
+        /* ONLY colorize the specific comparison table */
+        .comparison-table td:nth-child(2) { /* Tentative Agreement (TA) Column - Red */
+            background-color: #fff0f6; /* Light Red Background */
+            color: var(--danger-color); /* Red Text */
+            font-weight: bold;
+        }
+        .comparison-table td:nth-child(3) { /* UC Initial Offer (UC) Column - Navy Blue */
+            background-color: #e6f7ff; /* Light Blue Background */
+            color: var(--primary-color); /* Navy Blue Text */
+            font-weight: bold;
+        }
+
+
         .note {
             padding: 15px;
             margin-top: 15px;
@@ -163,16 +180,42 @@
         }
 
         .ta-note {
-            background-color: #e6f7ff;
-            border: 1px solid #91d5ff;
-            color: var(--primary-color);
+            background-color: #ffeccf;
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
             font-weight: bold;
+        }
+        
+        /* NEW: Total Summary Box */
+        .total-summary {
+            background-color: #fff0f6;
+            border: 2px solid var(--danger-color);
+            text-align: center;
+            padding: 15px;
+        }
+        .total-summary h3 {
+            color: var(--danger-color);
+            margin: 0 0 10px 0;
+            font-size: 1.3em;
+        }
+        .total-summary p {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--danger-color);
+            margin: 0;
+        }
+        .total-summary small {
+            font-size: 0.85em;
+            font-style: italic;
+            color: var(--text-color);
+            margin-top: 10px;
+            display: block;
         }
 
         .uc-note {
-            background-color: #fff0f6;
-            border: 1px solid #ffadd2;
-            color: var(--danger-color);
+            background-color: #e6f7ff;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
             font-weight: bold;
         }
 
@@ -190,7 +233,7 @@
         .chart-container {
             width: 100%;
             margin-top: 20px;
-            padding: 20px 0;
+            padding: 20px 10px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -314,7 +357,7 @@
         });
 
 
-        // --- Core Calculation Logic (FIXED) ---
+        // --- Core Calculation Logic ---
 
         /**
          * Calculates the wage progression using the compounding logic applied to the new step's 2025 base wage.
@@ -327,8 +370,9 @@
             const minStep = classification === 'CN2' ? 0 : 1;
             const maxStep = classification === 'CN2' ? 16 : 18;
 
+            // Input validation based on the min/max steps provided
             if (startStep < minStep || startStep > maxStep || payScale[classification][startStep] === undefined) {
-                alert(`Error: Step ${startStep} is not valid for ${classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3'}. Please select a valid starting step.`);
+                console.error(`Error: Step ${startStep} is not valid for ${classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3'}.`);
                 return null;
             }
 
@@ -337,10 +381,9 @@
             let steps = {};
             let cumulativeMultiplier = 1.0;
 
-            // 2025 Base Wage
+            // 2025 Base Wage (starting point)
             wages[2025] = payScale[classification][startStep];
             steps[2025] = startStep;
-
 
             for (let year = 2026; year <= 2030; year++) {
                 const raise = raises[year];
@@ -352,23 +395,20 @@
 
                 // 1. Determine the step for the current year (Step-up logic)
                 if (year > 2026 && currentStep < maxStep) {
+                    // Move up 1 step every year, but not counting 2026
                     currentStep++;
                 }
-
-                // Ensure the step is within the valid range for the classification
-                if (payScale[classification][currentStep] === undefined) {
-                    // This should only happen if the step moves outside the table, which is handled by maxStep check.
-                    // If it happens, we assume they stay at maxStep, but the wage calculation will break.
-                    // For safety, we enforce staying at maxStep.
+                
+                // If they have reached maxStep, they stay there
+                if (currentStep > maxStep) {
                     currentStep = maxStep;
                 }
-                
+
                 // 2. Get the 2025 Base Wage for the current step
                 const baseWageAtCurrentStep = payScale[classification][currentStep];
 
                 if (baseWageAtCurrentStep === undefined) {
-                    // Should not happen due to previous checks, but safety net
-                    console.error(`Wage data missing for ${classification} Step ${currentStep} in year ${year}.`);
+                    console.error(`Wage data missing for ${classification} Step ${currentStep} in year ${year}. Calculation aborted.`);
                     continue;
                 }
 
@@ -387,7 +427,8 @@
 
         // --- Result Generation and Display ---
         
-        let wageChart = null; // Variable to hold the Chart.js instance
+        let wageChart = null; // Variable for the first chart
+        let differenceChart = null; // Variable for the SECOND chart
 
         function generateWages() {
             const classification = document.getElementById('classification').value;
@@ -404,14 +445,14 @@
                 return;
             }
             
-            // --- 2. HTML Rendering ---
+            // --- 2. HTML Rendering (Now includes new elements for summary and 2nd chart) ---
             let html = `
                 <div class="result-card ta-note">
                     <p><strong>Tentative Agreement secured 18.5% pay raise over 4 years v.s. UC Initial Offer 13.7% over 5 years or 10.7% over 4 years. Details below!</strong></p>
                 </div>
 
                 <h2>💰 Estimated Hourly Wage Comparison</h2>
-                <p><strong>Classification:</strong> ${classificationName} | <strong>Starting 2025 Step:</strong> ${startStep}</p>
+                <p style="text-align: center;"><strong>Classification:</strong> ${classificationName} | <strong>Starting 2025 Step:</strong> ${startStep}</p>
 
                 ${generateComparisonTable(taResult, ucResult)}
 
@@ -419,9 +460,19 @@
                     <p><strong>NOTE (UC Initial Offer):</strong> The 27% Pay Raise over 5 years UC kept talking about was **False Marketing Tactics**. They included 2% Step Increase (Which already included in every contracts no matter what), and 3.3% of Lump Sum. Which explained why the inflated number was 27%. Actual pay raise they offered was **13.7% over 5 years**, or **10.7% over 4 years** (excluding 2030).</p>
                 </div>
                 
-                <h2>📈 Wage Comparison Graph</h2>
+                <h2>📈 Wage Progression Graph</h2>
                 <div class="chart-container">
                     <canvas id="wageChart"></canvas>
+                </div>
+
+                <!-- NEW: Summary Box and 2nd Chart -->
+                <div id="total-summary-area" class="result-card total-summary">
+                    <!-- Summary content will be injected by JS -->
+                </div>
+                
+                <h2>💵 TA vs. UC: Additional Annual Salary</h2>
+                <div class="chart-container">
+                    <canvas id="differenceChart"></canvas>
                 </div>
             `;
             
@@ -430,11 +481,14 @@
 
             // --- 3. Graph Generation ---
             createWageChart(taResult, ucResult);
+            // NEW: Call function to create the second chart and summary
+            createDifferenceChartAndSummary(taResult, ucResult); 
         }
 
         function generateComparisonTable(taResult, ucResult) {
+            // Added .comparison-table class here to specifically target this table for colorization
             let table = `
-                <table class="result-table">
+                <table class="result-table comparison-table">
                     <thead>
                         <tr>
                             <th>Year</th>
@@ -457,6 +511,7 @@
                 const taR = taRaises[year] ? (taRaises[year] * 100).toFixed(1) + '%' : '';
                 const ucR = ucOffers[year] ? (ucOffers[year] * 100).toFixed(1) + '%' : '';
 
+                // Only show rows where at least one wage is defined
                 if (taWage !== undefined || ucWage !== undefined) {
                      table += `
                         <tr>
@@ -476,7 +531,7 @@
         }
 
         function createWageChart(taResult, ucResult) {
-            // Get years that have data in both (up to 2029 for clean 4-year comparison)
+            // Get years up to 2029 for the main 4-year comparison graph labels
             const labels = Object.keys(taResult.wages).filter(year => parseInt(year) <= 2029).map(year => `${year} (Step ${taResult.steps[year]})`);
             const taData = labels.map(label => {
                 const year = label.substring(0, 4);
@@ -502,8 +557,9 @@
                         {
                             label: 'Tentative Agreement (TA)',
                             data: taData,
-                            borderColor: varToRgba('--primary-color', 1),
-                            backgroundColor: varToRgba('--primary-color', 0.1),
+                            // FLIPPED COLOR: Uses Danger (Red) for TA
+                            borderColor: varToRgba('--danger-color', 1), 
+                            backgroundColor: varToRgba('--danger-color', 0.1),
                             tension: 0.2,
                             pointRadius: 5,
                             fill: false,
@@ -511,8 +567,9 @@
                         {
                             label: 'UC Initial Offer (UC)',
                             data: ucData,
-                            borderColor: varToRgba('--danger-color', 1),
-                            backgroundColor: varToRgba('--danger-color', 0.1),
+                            // FLIPPED COLOR: Uses Primary (Navy Blue) for UC
+                            borderColor: varToRgba('--primary-color', 1), 
+                            backgroundColor: varToRgba('--primary-color', 0.1),
                             tension: 0.2,
                             pointRadius: 5,
                             fill: false,
@@ -530,7 +587,7 @@
                         },
                         title: {
                             display: true,
-                            text: 'Hourly Wage Comparison Over Time',
+                            text: 'Hourly Wage Progression Over Time',
                             font: { size: 16 }
                         }
                     },
@@ -552,6 +609,93 @@
                 }
             });
         }
+
+        // --- NEW: Second Chart and Summary Function ---
+
+        function createDifferenceChartAndSummary(taResult, ucResult) {
+            const HOURS_PER_YEAR = 2080; // Standard 40-hour work week
+            const labels = [];
+            const diffData = [];
+            let totalDifference = 0;
+
+            const years = [2026, 2027, 2028, 2029]; // Compare the 4 years of the TA
+
+            years.forEach(year => {
+                // We must have data for both to compare
+                if (taResult.wages[year] && ucResult.wages[year]) {
+                    labels.push(year);
+                    const hourlyDiff = taResult.wages[year] - ucResult.wages[year];
+                    const annualDiff = hourlyDiff * HOURS_PER_YEAR;
+                    diffData.push(annualDiff);
+                    totalDifference += annualDiff;
+                }
+            });
+
+            // 1. Populate the Total Summary Box
+            const summaryBox = document.getElementById('total-summary-area');
+            summaryBox.innerHTML = `
+                <h3>Total Additional Earnings (2026-2029)</h3>
+                <p>+ $${totalDifference.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <small>Based on the Tentative Agreement vs. the UC Initial Offer over 4 years (assumes 2,080 work hours/year).</small>
+            `;
+
+            // 2. Create the Bar Chart
+            const ctx = document.getElementById('differenceChart').getContext('2d');
+
+            if (differenceChart) {
+                differenceChart.destroy();
+            }
+
+            differenceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Additional Annual Salary (TA vs UC)',
+                            data: diffData,
+                            backgroundColor: varToRgba('--danger-color', 0.7), // Use TA Red
+                            borderColor: varToRgba('--danger-color', 1),
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false // Only one dataset, legend is redundant
+                        },
+                        title: {
+                            display: true,
+                            text: 'Additional Money Earned Per Year (TA vs. UC)',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Additional Salary ($)'
+                            },
+                            ticks: {
+                                // Format ticks as currency
+                                callback: function(value, index, values) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
 
         // Helper function to get the actual RGBA color from a CSS variable
         function varToRgba(cssVar, opacity) {
