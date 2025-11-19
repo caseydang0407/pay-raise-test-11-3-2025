@@ -26,7 +26,7 @@
         }
 
         .container {
-            max-width: 90%;
+            max-width: 95%; /* Wider container for the larger table */
             margin: 0 auto;
             padding: 20px 10px;
         }
@@ -123,6 +123,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow-x: auto; /* Allow horizontal scroll for wide tables */
         }
 
         .result-card h3 {
@@ -137,6 +138,7 @@
 
         .result-table {
             width: 100%;
+            min-width: 700px; /* Ensure wide table stays readable */
             border-collapse: collapse;
             margin-top: 15px;
             font-size: 0.9em;
@@ -146,6 +148,7 @@
             border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
+            white-space: nowrap;
         }
 
         .result-table th {
@@ -156,6 +159,7 @@
 
         .result-table td:nth-child(1) {
             font-weight: bold;
+            text-align: center;
         }
 
         /* ONLY colorize the specific comparison table */
@@ -247,7 +251,7 @@
         /* Responsive adjustments */
         @media (min-width: 600px) {
             .container {
-                max-width: 700px;
+                max-width: 900px;
             }
             .banner h1 {
                 font-size: 2.5em;
@@ -272,8 +276,7 @@
             <div class="input-group">
                 <label for="classification">Nursing Classification</label>
                 <select id="classification">
-                    <option value="CN2">Clinical Nurse 2</option>
-                    <option value="CN3">Clinical Nurse 3</option>
+                    <!-- Options populated by JavaScript -->
                 </select>
             </div>
 
@@ -296,30 +299,45 @@
         </div>
         
         <div class="pay-scale">
-            <h2>2025 Current Pay Scale</h2>
+            <h2>2025 Current Pay Scale (Hourly Rate)</h2>
             <div class="result-card">
                 <table class="result-table">
                     <thead>
-                        <tr>
-                            <th>Step</th>
-                            <th>Clinical Nurse 2 (Min: 0, Max: 16)</th>
-                            <th>Clinical Nurse 3 (Min: 1, Max: 18)</th>
-                        </tr>
+                        <!-- Table header inserted by JavaScript -->
                     </thead>
                     <tbody id="pay-scale-body">
                         <!-- Pay scale data inserted by JavaScript -->
                     </tbody>
                 </table>
+                <small class="note ta-note">Scroll horizontally on mobile devices to see all classifications.</small>
             </div>
         </div>
 
     </div>
 
     <script>
-        // Wage data from the user's table (2025 Base Rates)
+        // --- DATA DEFINITIONS ---
+
+        // Map of classification short codes to full names and step ranges
+        const classificationDetails = {
+            CN2: { name: "Clinical Nurse 2", min: 0, max: 16 },
+            CN3: { name: "Clinical Nurse 3", min: 1, max: 18 },
+            NP1: { name: "Nurse Practitioner 1", min: 1, max: 15 },
+            NP2: { name: "Nurse Practitioner 2", min: 1, max: 15 },
+            CO1: { name: "Coordinator 1", min: 1, max: 18 },
+            CO2: { name: "Coordinator 2", min: 1, max: 18 },
+            CRNA: { name: "CRNA", min: 1, max: 15 }
+        };
+
+        // 2025 Base Rates (Hourly) - Updated with 5 new classifications
         const payScale = {
             CN2: { 0: 70.21, 1: 73.72, 2: 75.17, 3: 76.70, 4: 78.23, 5: 79.84, 6: 81.41, 7: 83.03, 8: 84.69, 9: 86.38, 10: 88.08, 11: 89.89, 12: 91.65, 13: 93.48, 14: 95.37, 15: 97.24, 16: 99.20 },
-            CN3: { 1: 77.40, 2: 78.97, 3: 80.54, 4: 82.14, 5: 83.80, 6: 85.46, 7: 87.17, 8: 88.98, 9: 90.82, 10: 92.56, 11: 94.37, 12: 96.27, 13: 98.18, 14: 100.13, 15: 102.12, 16: 103.21, 17: 105.30, 18: 107.45 }
+            CN3: { 1: 77.40, 2: 78.97, 3: 80.54, 4: 82.14, 5: 83.80, 6: 85.46, 7: 87.17, 8: 88.98, 9: 90.82, 10: 92.56, 11: 94.37, 12: 96.27, 13: 98.18, 14: 100.13, 15: 102.12, 16: 103.21, 17: 105.30, 18: 107.45 },
+            NP1: { 1: 83.56, 2: 85.22, 3: 86.88, 4: 88.64, 5: 90.40, 6: 92.20, 7: 94.05, 8: 95.93, 9: 97.84, 10: 99.80, 11: 101.80, 12: 103.85, 13: 105.93, 14: 108.05, 15: 110.19 },
+            NP2: { 1: 87.69, 2: 89.45, 3: 91.22, 4: 93.04, 5: 94.90, 6: 96.81, 7: 98.74, 8: 100.73, 9: 102.75, 10: 104.78, 11: 106.89, 12: 109.04, 13: 111.25, 14: 113.45, 15: 115.72 },
+            CO1: { 1: 81.26, 2: 82.90, 3: 84.56, 4: 86.25, 5: 88.00, 6: 89.72, 7: 91.54, 8: 93.38, 9: 95.38, 10: 97.17, 11: 99.07, 12: 101.05, 13: 103.08, 14: 105.12, 15: 107.22, 16: 108.41, 17: 110.56, 18: 112.81 },
+            CO2: { 1: 85.33, 2: 87.08, 3: 88.79, 4: 90.58, 5: 92.40, 6: 94.24, 7: 96.10, 8: 98.04, 9: 100.13, 10: 102.02, 11: 104.03, 12: 106.13, 13: 108.24, 14: 110.42, 15: 112.59, 16: 113.82, 17: 116.12, 18: 118.43 },
+            CRNA: { 1: 90.51, 2: 92.32, 3: 94.18, 4: 96.07, 5: 97.95, 6: 99.94, 7: 101.94, 8: 103.96, 9: 106.07, 10: 110.36, 11: 112.53, 12: 114.78, 13: 117.09, 14: 119.41, 15: 121.84 }
         };
 
         const taRaises = { 2026: 0.05, 2027: 0.05, 2028: 0.045, 2029: 0.04 };
@@ -327,9 +345,21 @@
 
         // --- Initial Setup Functions ---
         
+        function populateClassificationDropdown() {
+            const select = document.getElementById('classification');
+            select.innerHTML = ''; // Clear existing options
+            for (const key in classificationDetails) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = classificationDetails[key].name;
+                select.appendChild(option);
+            }
+        }
+
         function populateStepDropdown() {
             const stepSelect = document.getElementById('step');
-            // Populate steps 0 through 18
+            stepSelect.innerHTML = ''; // Clear existing options
+            // Steps range from 0 (min CN2) to 18 (max CN3/CO2)
             for (let i = 0; i <= 18; i++) {
                 const option = document.createElement('option');
                 option.value = i;
@@ -340,23 +370,42 @@
 
         function populatePayScaleTable() {
             const tbody = document.getElementById('pay-scale-body');
-            for (let i = 0; i <= 18; i++) {
-                let cn2Wage = payScale.CN2[i] ? `$${payScale.CN2[i].toFixed(2)}` : '';
-                let cn3Wage = payScale.CN3[i] ? `$${payScale.CN3[i].toFixed(2)}` : '';
+            const thead = document.querySelector('.result-table thead');
+            tbody.innerHTML = ''; // Clear body
 
-                let row = `
-                    <tr>
-                        <td>${i}</td>
-                        <td style="text-align: center;">${cn2Wage}</td>
-                        <td style="text-align: center;">${cn3Wage}</td>
-                    </tr>
-                `;
-                tbody.insertAdjacentHTML('beforeend', row);
+            // 1. Build Header
+            let headerRow = '<tr><th>Step</th>';
+            for (const key in classificationDetails) {
+                const detail = classificationDetails[key];
+                headerRow += `<th>${detail.name} (Min: ${detail.min}, Max: ${detail.max})</th>`;
+            }
+            headerRow += '</tr>';
+            thead.innerHTML = headerRow;
+
+            // 2. Build Body
+            const maxStep = 18; // Max step across all classifications
+            for (let i = 0; i <= maxStep; i++) {
+                let row = `<tr><td>${i}</td>`;
+                
+                for (const key in classificationDetails) {
+                    const wage = payScale[key][i];
+                    let cellContent = wage ? `$${wage.toFixed(2)}` : '';
+                    row += `<td style="text-align: center;">${cellContent}</td>`;
+                }
+                
+                row += `</tr>`;
+                // Only insert the row if it has data (Step 0 for CN2, or Step 17/18 for CN3/COx)
+                // We check if at least one classification has data for this step
+                const hasData = Object.keys(payScale).some(key => payScale[key][i] !== undefined);
+                if (hasData) {
+                    tbody.insertAdjacentHTML('beforeend', row);
+                }
             }
         }
 
         // Run setup functions on load
         document.addEventListener('DOMContentLoaded', () => {
+            populateClassificationDropdown();
             populateStepDropdown();
             populatePayScaleTable();
         });
@@ -366,18 +415,18 @@
 
         /**
          * Calculates the wage progression using the compounding logic applied to the new step's 2025 base wage.
-         * @param {string} classification - 'CN2' or 'CN3'.
+         * @param {string} classificationKey - The short code for the classification (e.g., 'CN2').
          * @param {number} startStep - The nurse's current 2025 step.
          * @param {Object} raises - The object of annual percentage raises for the agreement.
          * @returns {Object} { wages: {2025: ..., 2026: ...}, steps: {2025: ..., 2026: ...} }
          */
-        function calculateWageProgression(classification, startStep, raises) {
-            const minStep = classification === 'CN2' ? 0 : 1;
-            const maxStep = classification === 'CN2' ? 16 : 18;
+        function calculateWageProgression(classificationKey, startStep, raises) {
+            const details = classificationDetails[classificationKey];
+            const maxStep = details.max;
 
             // Input validation based on the min/max steps provided
-            if (startStep < minStep || startStep > maxStep || payScale[classification][startStep] === undefined) {
-                console.error(`Error: Step ${startStep} is not valid for ${classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3'}.`);
+            if (startStep < details.min || startStep > maxStep || payScale[classificationKey][startStep] === undefined) {
+                console.error(`Error: Step ${startStep} is not valid for ${details.name}.`);
                 return null;
             }
 
@@ -387,7 +436,7 @@
             let cumulativeMultiplier = 1.0;
 
             // 2025 Base Wage (starting point)
-            wages[2025] = payScale[classification][startStep];
+            wages[2025] = payScale[classificationKey][startStep];
             steps[2025] = startStep;
 
             for (let year = 2026; year <= 2030; year++) {
@@ -410,10 +459,16 @@
                 }
 
                 // 2. Get the 2025 Base Wage for the current step
-                const baseWageAtCurrentStep = payScale[classification][currentStep];
+                const baseWageAtCurrentStep = payScale[classificationKey][currentStep];
 
                 if (baseWageAtCurrentStep === undefined) {
-                    console.error(`Wage data missing for ${classification} Step ${currentStep} in year ${year}. Calculation aborted.`);
+                    console.error(`Wage data missing for ${details.name} Step ${currentStep} in year ${year}. Nurse at max step? Using previous year's calculated wage rate.`);
+                    
+                    // If the step is missing (e.g., trying to reach step 16 in NP1, but it maxes at 15), 
+                    // this means they are likely at the cap. We use the calculated wage from the previous year.
+                    const previousYear = year - 1;
+                    wages[year] = wages[previousYear] * (1 + raise);
+                    steps[year] = currentStep; // Keep the calculated (but maxed) step for display
                     continue;
                 }
 
@@ -434,24 +489,28 @@
         
         let wageChart = null; // Line Chart for Hourly Wage Progression
         let differenceChart = null; // Bar Chart for Annual Wage Increase (2029 vs 2025)
-        let annualSalaryChart = null; // New Bar Chart for Annual Salary Comparison
+        let annualSalaryChart = null; // Grouped Bar Chart for Annual Salary Comparison
 
         function generateWages() {
-            const classification = document.getElementById('classification').value;
+            const classificationKey = document.getElementById('classification').value;
             const startStep = parseInt(document.getElementById('step').value);
-            const classificationName = classification === 'CN2' ? 'Clinical Nurse 2' : 'Clinical Nurse 3';
+            const classificationName = classificationDetails[classificationKey].name;
             const resultsArea = document.getElementById('results-area');
 
             // --- 1. Calculations ---
-            const taResult = calculateWageProgression(classification, startStep, taRaises);
-            const ucResult = calculateWageProgression(classification, startStep, ucOffers);
+            const taResult = calculateWageProgression(classificationKey, startStep, taRaises);
+            const ucResult = calculateWageProgression(classificationKey, startStep, ucOffers);
 
             if (!taResult || !ucResult) {
-                resultsArea.style.display = 'none';
+                // Display error message if calculation failed due to invalid step
+                resultsArea.innerHTML = `<div class="result-card ta-note" style="text-align: center;">
+                    <p><strong>Error: Step ${startStep} is not valid for ${classificationName}. Please check the 2025 Pay Scale below.</strong></p>
+                </div>`;
+                resultsArea.style.display = 'block';
                 return;
             }
             
-            // --- 2. HTML Rendering (Updated to include new annual salary section) ---
+            // --- 2. HTML Rendering ---
             let html = `
                 <div class="result-card ta-note">
                     <p><strong>Tentative Agreement secured 18.5% pay raise over 4 years v.s. UC Initial Offer 13.7% over 5 years or 10.7% over 4 years. Details below!</strong></p>
@@ -481,7 +540,7 @@
                     <canvas id="differenceChart"></canvas>
                 </div>
 
-                <!-- NEW: Summary Box for Annual Salary Comparison (2029 Final) -->
+                <!-- Summary Box for Annual Salary Comparison (2029 Final) -->
                 <div id="annual-salary-summary-area" class="total-summary" style="margin-top: 20px;">
                     <!-- Annual Salary Summary content will be injected by JS -->
                 </div>
@@ -498,12 +557,10 @@
             // --- 3. Graph Generation ---
             createWageChart(taResult, ucResult);
             createTotalIncreaseChartAndSummary(taResult, ucResult);
-            // NEW: Call function to create the annual salary chart and summary
             createAnnualSalaryChartAndSummary(taResult, ucResult); 
         }
 
         function generateComparisonTable(taResult, ucResult) {
-            // Added .comparison-table class here to specifically target this table for colorization
             let table = `
                 <table class="result-table comparison-table">
                     <thead>
@@ -528,7 +585,6 @@
                 const taR = taRaises[year] ? (taRaises[year] * 100).toFixed(1) + '%' : '';
                 const ucR = ucOffers[year] ? (ucOffers[year] * 100).toFixed(1) + '%' : '';
 
-                // Only show rows where at least one wage is defined
                 if (taWage !== undefined || ucWage !== undefined) {
                      table += `
                         <tr>
@@ -548,7 +604,6 @@
         }
 
         function createWageChart(taResult, ucResult) {
-            // Get years up to 2029 for the main 4-year comparison graph labels
             const labels = Object.keys(taResult.wages).filter(year => parseInt(year) <= 2029).map(year => `${year} (Step ${taResult.steps[year]})`);
             const taData = labels.map(label => {
                 const year = label.substring(0, 4);
@@ -561,7 +616,6 @@
 
             const ctx = document.getElementById('wageChart').getContext('2d');
 
-            // Destroy the previous chart instance if it exists
             if (wageChart) {
                 wageChart.destroy();
             }
@@ -574,7 +628,6 @@
                         {
                             label: 'Tentative Agreement (TA)',
                             data: taData,
-                            // FLIPPED COLOR: Uses Danger (Red) for TA
                             borderColor: varToRgba('--danger-color', 1), 
                             backgroundColor: varToRgba('--danger-color', 0.1),
                             tension: 0.2,
@@ -584,7 +637,6 @@
                         {
                             label: 'UC Initial Offer (UC)',
                             data: ucData,
-                            // FLIPPED COLOR: Uses Primary (Navy Blue) for UC
                             borderColor: varToRgba('--primary-color', 1), 
                             backgroundColor: varToRgba('--primary-color', 0.1),
                             tension: 0.2,
@@ -632,15 +684,12 @@
         function createTotalIncreaseChartAndSummary(taResult, ucResult) {
             const HOURS_PER_YEAR = 2080; 
 
-            // Calculate Total Increase (2029 vs 2025) for TA
             const taIncreaseHourly = taResult.wages[2029] - taResult.wages[2025];
             const totalIncreaseTA = taIncreaseHourly * HOURS_PER_YEAR;
 
-            // Calculate Total Increase (2029 vs 2025) for UC
             const ucIncreaseHourly = ucResult.wages[2029] - ucResult.wages[2025];
             const totalIncreaseUC = ucIncreaseHourly * HOURS_PER_YEAR;
             
-            // The difference between the two total increases (used for the summary box header)
             const overallDifference = totalIncreaseTA - totalIncreaseUC;
 
             // 1. Populate the Total Summary Box
@@ -653,7 +702,7 @@
 
 
             summaryBox.innerHTML = `
-                <h3>Total Wage Increase (2025 Base to 2029 Rate)</h3>
+                <h3>Total Annual Wage Increase (2025 Base to 2029 Rate)</h3>
                 <p style="font-size: 1.2em; font-weight: normal; margin-bottom: 5px; color: ${varToRgba('--danger-color', 1)};">
                     TA Increase: <strong>+ $${formattedTotalIncreaseTA}</strong>
                 </p>
@@ -725,7 +774,6 @@
                                 text: 'Total Annual Increase ($)'
                             },
                             ticks: {
-                                // Format ticks as currency
                                 callback: function(value, index, values) {
                                     return '$' + value.toLocaleString();
                                 }
@@ -742,7 +790,7 @@
         }
 
 
-        // --- NEW: Annual Salary Comparison (Year-by-Year) ---
+        // --- Annual Salary Comparison (Year-by-Year) ---
 
         function createAnnualSalaryChartAndSummary(taResult, ucResult) {
             const HOURS_PER_YEAR = 2080;
