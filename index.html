@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wage Estimator Sacramento 2026-2029</title>
-    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <style>
@@ -324,7 +323,7 @@
                 <option value="1">Clinical Nurse 3</option>
                 <option value="2">Nurse Practitioner 1</option>
                 <option value="3">Nurse Practitioner 2</option>
-                <option value="4">Coordinator 1</option>
+                <option value="7">Nurse Practitioner 3</option> <option value="4">Coordinator 1</option>
                 <option value="5">Coordinator 2</option>
                 <option value="6">CRNA</option>
             </select>
@@ -333,7 +332,6 @@
         <div class="input-group">
             <label for="step">Step (Current 2025 Step)</label>
             <select id="step">
-                <!-- Steps 1 to 18 -->
                 <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                 <option value="4">4</option><option value="5">5</option><option value="6">6</option>
                 <option value="7">7</option><option value="8">8</option><option value="9">9</option>
@@ -355,7 +353,7 @@
             <strong>Note:</strong> 
             <ul>
                 <li>CN 2 Freezes at Step 16.</li>
-                <li>NP 1, NP 2, and CRNA Freeze at Step 15.</li>
+                <li>NP 1, NP 2, NP 3, and CRNA Freeze at Step 15.</li>
                 <li>CN 3 and Coordinators Freeze at Step 18.</li>
             </ul>
             If you are at the maximum step, you will not receive step increases.
@@ -383,8 +381,7 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <!-- Rows will be inserted here by JS -->
-                </tbody>
+                    </tbody>
             </table>
         </div>
 
@@ -412,11 +409,9 @@
         </div>
 
         <div id="finalSalaryDisplay" class="final-salary" style="display:none;">
-            <!-- Final Salary will be injected here -->
-        </div>
+            </div>
     </div>
 
-    <!-- REFERENCE TABLE SECTION -->
     <div class="reference-section">
         <h2>2025 PAY SCALE REFERENCE</h2>
         <div class="table-responsive">
@@ -431,11 +426,10 @@
                         <th>Coord 1</th>
                         <th>Coord 2</th>
                         <th>CRNA</th>
-                    </tr>
+                        <th>NP 3</th> </tr>
                 </thead>
                 <tbody id="refTableBody">
-                   <!-- Populated by JS to ensure consistency -->
-                </tbody>
+                   </tbody>
             </table>
         </div>
     </div>
@@ -443,27 +437,27 @@
 
 <script>
     // Data updated based on new prompt
-    // Columns: 0:CN2, 1:CN3, 2:NP1, 3:NP2, 4:Coord1, 5:Coord2, 6:CRNA
-    // Removed extrapolated data for steps 16-18 for NP/CRNA as requested.
+    // Columns: 0:CN2, 1:CN3, 2:NP1, 3:NP2, 4:Coord1, 5:Coord2, 6:CRNA, 7:NP3
+    // Added NP3 (Index 7) to every row
     const payData = {
-        1:  [73.72, 77.40, 83.56, 87.69, 81.26, 85.33, 90.51],
-        2:  [75.17, 78.97, 85.22, 89.45, 82.90, 87.08, 92.32],
-        3:  [76.70, 80.54, 86.88, 91.22, 84.56, 88.79, 94.18],
-        4:  [78.23, 82.14, 88.64, 93.04, 86.25, 90.58, 96.07],
-        5:  [79.84, 83.80, 90.40, 94.90, 88.00, 92.40, 97.95],
-        6:  [81.41, 85.46, 92.20, 96.81, 89.72, 94.24, 99.94],
-        7:  [83.03, 87.17, 94.05, 98.74, 91.54, 96.10, 101.94],
-        8:  [84.69, 88.98, 95.93, 100.73, 93.38, 98.04, 103.96],
-        9:  [86.38, 90.82, 97.84, 102.75, 95.38, 100.13, 106.07],
-        10: [88.08, 92.56, 99.80, 104.78, 97.17, 102.02, 110.36],
-        11: [89.89, 94.37, 101.80, 106.89, 99.07, 104.03, 112.53],
-        12: [91.65, 96.27, 103.85, 109.04, 101.05, 106.13, 114.78],
-        13: [93.48, 98.18, 105.93, 111.25, 103.08, 108.24, 117.09],
-        14: [95.37, 100.13, 108.05, 113.45, 105.12, 110.42, 119.41],
-        15: [97.24, 102.12, 110.19, 115.72, 107.22, 112.59, 121.84],
-        16: [99.20, 103.21, null, null, 108.41, 113.82, null],
-        17: [null, 105.30, null, null, 110.56, 116.12, null],
-        18: [null, 107.45, null, null, 112.81, 118.43, null]
+        1:  [73.72, 77.40, 83.56, 87.69, 81.26, 85.33, 90.51, 96.45],
+        2:  [75.17, 78.97, 85.22, 89.45, 82.90, 87.08, 92.32, 98.39],
+        3:  [76.70, 80.54, 86.88, 91.22, 84.56, 88.79, 94.18, 100.35],
+        4:  [78.23, 82.14, 88.64, 93.04, 86.25, 90.58, 96.07, 102.34],
+        5:  [79.84, 83.80, 90.40, 94.90, 88.00, 92.40, 97.95, 104.41],
+        6:  [81.41, 85.46, 92.20, 96.81, 89.72, 94.24, 99.94, 106.48],
+        7:  [83.03, 87.17, 94.05, 98.74, 91.54, 96.10, 101.94, 108.60],
+        8:  [84.69, 88.98, 95.93, 100.73, 93.38, 98.04, 103.96, 110.83],
+        9:  [86.38, 90.82, 97.84, 102.75, 95.38, 100.13, 106.07, 113.00],
+        10: [88.08, 92.56, 99.80, 104.78, 97.17, 102.02, 110.36, 115.26],
+        11: [89.89, 94.37, 101.80, 106.89, 99.07, 104.03, 112.53, 117.59],
+        12: [91.65, 96.27, 103.85, 109.04, 101.05, 106.13, 114.78, 119.94],
+        13: [93.48, 98.18, 105.93, 111.25, 103.08, 108.24, 117.09, 122.33],
+        14: [95.37, 100.13, 108.05, 113.45, 105.12, 110.42, 119.41, 124.79],
+        15: [97.24, 102.12, 110.19, 115.72, 107.22, 112.59, 121.84, 127.27],
+        16: [99.20, 103.21, null, null, 108.41, 113.82, null, null],
+        17: [null, 105.30, null, null, 110.56, 116.12, null, null],
+        18: [null, 107.45, null, null, 112.81, 118.43, null, null]
     };
 
     // Render Reference Table on Load
@@ -471,8 +465,8 @@
         const refBody = document.getElementById('refTableBody');
         for(let i=1; i<=18; i++) {
             let row = `<tr><td>${i}</td>`;
-            // Columns 0 to 6
-            for(let c=0; c<=6; c++) {
+            // Columns 0 to 7 (Includes NP3 now)
+            for(let c=0; c<=7; c++) {
                  let val = payData[i][c];
                  row += `<td>${val ? '$'+val.toFixed(2) : '-'}</td>`;
             }
@@ -488,10 +482,10 @@
     // Helper to get max step based on index
     function getMaxStep(classIndex) {
         // 0: CN2 -> Max 16
-        // 2: NP1, 3: NP2, 6: CRNA -> Max 15
+        // 2: NP1, 3: NP2, 6: CRNA, 7: NP3 -> Max 15
         // 1: CN3, 4: Coord1, 5: Coord2 -> Max 18
         if (classIndex === 0) return 16;
-        if (classIndex === 2 || classIndex === 3 || classIndex === 6) return 15;
+        if (classIndex === 2 || classIndex === 3 || classIndex === 6 || classIndex === 7) return 15;
         return 18;
     }
 
@@ -819,12 +813,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
